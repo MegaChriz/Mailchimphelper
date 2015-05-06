@@ -12,17 +12,16 @@ function mailchimphelper_rules_action_info() {
   $items['mailchimphelper_mail_subscribe_list'] = array(
     'label' => t('Subscribe mail address to a mailchimp list'),
     'parameter' => array(
-      'list' => array(
-        'type' => 'mailchimp_list',
+      'list_id' => array(
+        'type' => 'text',
         'label' => t('Mailchimp list'),
-        //'options list' => 'mailchimphelper_get_lists_options',
+        'options list' => 'mailchimphelper_get_lists_options',
         'default mode' => 'input',
-        //'save' => TRUE,
       ),
-      // Further needed parameters depends in list.
+      // Further needed parameters depends on list.
     ),
     'group' => t('Mailchimp'),
-    'access callback' => 'mailchimphelper_rules_access_callback',
+    'access callback' => 'mailchimp_lists_rules_access_callback',
     'base' => 'mailchimphelper_rules_action_mail_subscribe_list',
     'callbacks' => array(
       'form_alter' => 'mailchimphelper_action_mail_subscribe_list_form_alter'
@@ -34,17 +33,19 @@ function mailchimphelper_rules_action_info() {
 /**
  * Action callback: Subscribe a user to a list.
  */
-function mailchimphelper_rules_action_mail_subscribe_list($list) {
+function mailchimphelper_rules_action_mail_subscribe_list($list_id) {
   $args = func_get_args();
-
-  $list_info = mailchimp_get_list($list->mc_list_id);
 
   $email = NULL;
   $merge_vars = array();
 
+  // Retrieve mergevars info for this list.
+  $mergevars_per_list = mailchimp_get_mergevars(array($list_id));
+  $mergevars = $mergevars_per_list[$list_id]['merge_vars'];
+
   // Index list variables by id.
   $merge_vars_info = array();
-  foreach ($list_info['mergevars'] as $var) {
+  foreach ($mergevars as $var) {
     $id = 'mergevars_' . $var['id'];
     $merge_vars_info[$id] = $var;
   }
@@ -77,19 +78,8 @@ function mailchimphelper_rules_action_mail_subscribe_list($list) {
     }
   }
 
-  // Debug.
-  /*
-  outputlog(array(
-    'list' => $list,
-    'param_info' => $param_info,
-    'merge_vars_info' => $merge_vars_info,
-    'email' => $email,
-    'merge_vars' => $merge_vars,
-  ));
-  */
-
   // Subscribe e-mail!
-  mailchimp_subscribe_user($list, $email, $merge_vars, FALSE);
+  mailchimp_subscribe($list_id, $email, $merge_vars, FALSE);
 }
 
 /**
@@ -103,17 +93,16 @@ function mailchimphelper_rules_access_callback() {
  * Info alteration callback for mailchimphelper_mail_subscribe_list action.
  */
 function mailchimphelper_rules_action_mail_subscribe_list_info_alter(&$element_info, RulesAbstractPlugin $element) {
-  if (!empty($element->settings['list'])) {
-    $list_name = $element->settings['list'];
+  if (!empty($element->settings['list_id'])) {
+    $list_id = $element->settings['list_id'];
     $cache = rules_get_cache();
 
-    // Retrieve info for this list.
-    $lists = entity_load_multiple_by_name('mailchimp_list', array($list_name));
-    $oList = current($lists);
-    $list_info = mailchimp_get_list($oList->mc_list_id);
+    // Retrieve mergevars info for this list.
+    $mergevars_per_list = mailchimp_get_mergevars(array($list_id));
+    $mergevars = $mergevars_per_list[$list_id]['merge_vars'];
 
     // Create parameters for each variable.
-    foreach ($list_info['mergevars'] as $var) {
+    foreach ($mergevars as $var) {
       $id = 'mergevars_' . $var['id'];
       $param = array(
         'type' => 'text',
@@ -135,10 +124,11 @@ function mailchimphelper_rules_action_mail_subscribe_list_info_alter(&$element_i
  * Options list callback for mailchimphelper_rules_action_mail_subscribe_list action.
  */
 function mailchimphelper_rules_action_mail_subscribe_list_options($element, $key) {
-  $list = $element->settings['list'];
-  $list_info = mailchimp_get_list($list);
+  $list_id = $element->settings['list_id'];
+  $mergevars_per_list = mailchimp_get_mergevars(array($list_id));
+  $mergevars = $mergevars_per_list[$list_id]['merge_vars'];
 
-  foreach ($list_info['mergevars'] as $var) {
+  foreach ($mergevars as $var) {
     $id = 'mergevars_' . $var['id'];
     if ($id == $key) {
       return $var['choices'];
