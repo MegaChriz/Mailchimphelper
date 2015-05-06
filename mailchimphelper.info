@@ -1,0 +1,7 @@
+name = MailChimp Helper
+description = Extra features for MailChimp, such as exta rules actions.
+package = "MailChimp"
+core = 7.x
+version = "7.x-1.0-alpha1"
+
+dependencies[] = mailchimp
