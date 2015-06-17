@@ -20,6 +20,29 @@ function mailchimphelper_rules_data_info() {
 }
 
 /**
+ * Implements hook_rules_condition_info().
+ */
+function mailchimphelper_rules_condition_info() {
+  return array(
+    'mailchimphelper_is_subscribed' => array(
+      'label' => t('Email is subscribed'),
+      'parameter' => array(
+        'list_id' => array(
+          'label' => t('Mailchimp list'),
+          'type' => 'text',
+          'options list' => 'mailchimphelper_get_lists_options',
+        ),
+        'email' => array(
+          'label' => t('E-mail address'),
+          'type' => 'text',
+        ),
+      ),
+      'group' => t('MailChimp'),
+    ),
+  );
+}
+
+/**
  * Implements hook_rules_action_info().
  */
 function mailchimphelper_rules_action_info() {
@@ -76,6 +99,13 @@ function mailchimphelper_rules_action_info() {
 }
 
 /**
+ * Condition callback: check if a mail address is subscribed to a list.
+ */
+function mailchimphelper_is_subscribed($list_id, $email) {
+  return mailchimp_is_subscribed($list_id, $email);
+}
+
+/**
  * Action callback: Subscribe a mail address to a list.
  */
 function mailchimphelper_rules_action_mail_subscribe_list($list_id) {
@@ -124,7 +154,7 @@ function mailchimphelper_rules_action_mail_subscribe_list($list_id) {
   }
 
   // Subscribe e-mail!
-  mailchimp_subscribe($list_id, $email, $merge_vars, FALSE);
+  mailchimp_subscribe($list_id, $email, $merge_vars, FALSE, FALSE, 'html', TRUE, FALSE);
 }
 
 /**
