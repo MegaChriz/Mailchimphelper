@@ -64,6 +64,53 @@ function mailchimphelper_rules_action_mail_subscribe_list_form_alter(&$form, &$f
 }
 
 /**
+ * Form alter callback for rules action to provide extra subscriber data.
+ */
+function mailchimphelper_rules_action_subscribe_intgroup_multiple_form_alter(&$form, &$form_state, $options, RulesAbstractPlugin $element) {
+  $first_step = empty($element->settings['list_id']);
+
+  $form['reload'] = array(
+    '#weight' => 5,
+    '#type' => 'submit',
+    '#name' => 'reload',
+    '#value' => $first_step ? t('Continue') : t('Reload form'),
+    '#limit_validation_errors' => array(array('parameter', 'list_id')),
+    '#submit' => array('mailchimphelper_rules_action_form_submit_rebuild'),
+    '#ajax' => rules_ui_form_default_ajax(),
+  );
+  // Use ajax and trigger as the reload button.
+  $form['parameter']['list_id']['settings']['list_id']['#ajax'] = $form['reload']['#ajax'] + array(
+    'event' => 'change',
+    'trigger_as' => array('name' => 'reload'),
+  );
+
+  if ($first_step) {
+    // In the first step show only the fields for email and list_id.
+    foreach (element_children($form['parameter']) as $key) {
+      switch ($key) {
+        case 'email':
+        case 'list_id':
+          break;
+
+        default:
+          unset($form['parameter'][$key]);
+          break;
+      }
+    }
+    unset($form['submit']);
+    unset($form['provides']);
+    // Disable #ajax for the first step as it has troubles with lazy-loaded JS.
+    // @todo: Re-enable once JS lazy-loading is fixed in core.
+    unset($form['parameter']['list_id']['settings']['list_id']['#ajax']);
+    unset($form['reload']['#ajax']);
+  }
+  else {
+    // Hide the reload button in case js is enabled and it's not the first step.
+    $form['reload']['#attributes'] = array('class' => array('rules-hide-js'));
+  }
+}
+
+/**
  * Get available lists.
  */
 function mailchimphelper_get_lists_options() {
