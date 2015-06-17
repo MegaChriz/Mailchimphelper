@@ -28,4 +28,14 @@ class PluginBase extends RulesActionHandlerBase {
   public function access() {
     return user_access('administer mailchimp');
   }
+
+  /**
+   * FAPI submit callback for reloading the form.
+   */
+  public function rebuildForm($form, &$form_state) {
+    rules_form_submit_rebuild($form, $form_state);
+    // Clear the parameter modes for the parameters, so they get the proper
+    // default values based upon the data types on rebuild.
+    $form_state['parameter_mode'] = array();
+  }
 }

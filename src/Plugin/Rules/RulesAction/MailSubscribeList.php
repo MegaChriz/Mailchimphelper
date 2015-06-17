@@ -8,7 +8,6 @@
 namespace Drupal\mailchimphelper\Plugin\Rules\RulesAction;
 
 use \RulesAction;
-use \RulesAbstractPlugin;
 
 /**
  * Action plugin for subscribing a mail address to a mailchimp list.
@@ -100,7 +99,7 @@ class MailSubscribeList extends PluginBase {
       '#name' => 'reload',
       '#value' => $first_step ? t('Continue') : t('Reload form'),
       '#limit_validation_errors' => array(array('parameter', 'list_id')),
-      '#submit' => array('mailchimphelper_rules_action_form_submit_rebuild'),
+      '#submit' => array(array($this, 'rebuildForm')),
       '#ajax' => rules_ui_form_default_ajax(),
     );
     // Use ajax and trigger as the reload button.
