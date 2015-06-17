@@ -9,7 +9,7 @@
 /**
  * FAPI submit callback for reloading the form for setting the mailchimphelper_mail_subscribe_list action.
  */
-function mailchimphelper_action_mail_subscribe_list_form_submit_rebuild($form, &$form_state) {
+function mailchimphelper_rules_action_form_submit_rebuild($form, &$form_state) {
   rules_form_submit_rebuild($form, $form_state);
   // Clear the parameter modes for the parameters, so they get the proper
   // default values based upon the data types on rebuild.
@@ -20,7 +20,7 @@ function mailchimphelper_action_mail_subscribe_list_form_submit_rebuild($form, &
 /**
  * Form alter callback for rules action to provide extra subscriber data.
  */
-function mailchimphelper_action_mail_subscribe_list_form_alter(&$form, &$form_state, $options, RulesAbstractPlugin $element) {
+function mailchimphelper_rules_action_mail_subscribe_list_form_alter(&$form, &$form_state, $options, RulesAbstractPlugin $element) {
   $first_step = empty($element->settings['list_id']);
 
   $form['reload'] = array(
@@ -29,7 +29,7 @@ function mailchimphelper_action_mail_subscribe_list_form_alter(&$form, &$form_st
     '#name' => 'reload',
     '#value' => $first_step ? t('Continue') : t('Reload form'),
     '#limit_validation_errors' => array(array('parameter', 'list_id')),
-    '#submit' => array('mailchimphelper_action_mail_subscribe_list_form_submit_rebuild'),
+    '#submit' => array('mailchimphelper_rules_action_form_submit_rebuild'),
     '#ajax' => rules_ui_form_default_ajax(),
   );
   // Use ajax and trigger as the reload button.

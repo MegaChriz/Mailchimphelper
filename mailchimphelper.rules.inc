@@ -24,14 +24,14 @@ function mailchimphelper_rules_action_info() {
     'access callback' => 'mailchimp_lists_rules_access_callback',
     'base' => 'mailchimphelper_rules_action_mail_subscribe_list',
     'callbacks' => array(
-      'form_alter' => 'mailchimphelper_action_mail_subscribe_list_form_alter'
+      'form_alter' => 'mailchimphelper_rules_action_mail_subscribe_list_form_alter'
     ),
   );
   return $items;
 }
 
 /**
- * Action callback: Subscribe a user to a list.
+ * Action callback: Subscribe a mail address to a list.
  */
 function mailchimphelper_rules_action_mail_subscribe_list($list_id) {
   $args = func_get_args();
@@ -121,7 +121,7 @@ function mailchimphelper_rules_action_mail_subscribe_list_info_alter(&$element_i
 }
 
 /**
- * Options list callback for mailchimphelper_rules_action_mail_subscribe_list action.
+ * Options list callback for select fields of the mailchimphelper_rules_action_mail_subscribe_list action.
  */
 function mailchimphelper_rules_action_mail_subscribe_list_options($element, $key) {
   $list_id = $element->settings['list_id'];
