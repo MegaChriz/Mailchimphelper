@@ -35,7 +35,7 @@ class IsSubscribed extends PluginBase {
   /**
    * Executes the condition.
    */
-  public function execute($node, $types) {
-    return mailchimp_is_subscribed($list_id, $email);
+  public function execute($list_id, $email) {
+    return mailchimp_is_subscribed($list_id, $email, TRUE);
   }
 }
