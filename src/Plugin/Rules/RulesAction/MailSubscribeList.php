@@ -58,29 +58,24 @@ class MailSubscribeList extends PluginBase {
     // Since we deal with dynamic arguments, we need to find out what each
     // argument means. We do so by examining the parameter info of the
     // Rules action.
-    foreach ($args as $arg) {
-      if ($arg instanceof RulesAction) {
-        // Get the parameter info of this action, so we can get to know what the other arguments are about.
-        $param_info = $arg->pluginParameterInfo();
-        $arg_count = 0;
-        foreach ($param_info as $param_key => $param_value) {
-          if (isset($merge_vars_info[$param_key])) {
-            // Yay. We found an argument that belongs to the mailchimp's merge variables,
-            // set a mergevar variable.
-            $merge_vars_key = $merge_vars_info[$param_key]['tag'];
-            $merge_vars[$merge_vars_key] = $args[$arg_count];
+    $param_info = $this->element->pluginParameterInfo();
+    $arg_count = 0;
+    foreach ($param_info as $param_key => $param_value) {
+      if (isset($merge_vars_info[$param_key])) {
+        // Yay. We found an argument that belongs to the mailchimp's merge variables,
+        // set a mergevar variable.
+        $merge_vars_key = $merge_vars_info[$param_key]['tag'];
+        $merge_vars[$merge_vars_key] = $args[$arg_count];
 
-            // One of the mailchimp's merge variables is expected to be a mail address.
-            // We can get the mail address by checking the merge variables's field type.
-            // @todo Maybe the email parameter should be a "native" parameter instead?
-            if (is_null($email) && $merge_vars_info[$param_key]['field_type'] == 'email') {
-             // We take only the first one.
-             $email = $args[$arg_count];
-            }
-          }
-          $arg_count++;
+        // One of the mailchimp's merge variables is expected to be a mail address.
+        // We can get the mail address by checking the merge variables's field type.
+        // @todo Maybe the email parameter should be a "native" parameter instead?
+        if (is_null($email) && $merge_vars_info[$param_key]['field_type'] == 'email') {
+         // We take only the first one.
+         $email = $args[$arg_count];
         }
       }
+      $arg_count++;
     }
 
     // Subscribe e-mail!
