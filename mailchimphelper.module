@@ -23,3 +23,51 @@ function mailchimphelper_get_lists_options() {
   }
   return $options;
 }
+
+/**
+ * Implements hook_user_presave().
+ *
+ * We need to keep track of when an account is being saved to avoid saving it
+ * again while it is still in the process of being saved.
+ * This is because of the following process:
+ * 1. Account with a MailChimp subscription field is being saved.
+ * 2. While saving the MailChimp subscription field, member info from MailChimp
+ *    is retrieved.
+ * 3. The rule event mailchimp_get_member_info is invoked.
+ * 4. A triggering rule can save an account.
+ *
+ * Step 4 must not take place when not all fields from the user are saved yet.
+ * Rules can use the condition 'mailchimphelper_mail_is_saving' to check if the
+ * user is in the process of being saved.
+ *
+ * @todo Maybe implement this for generic entities instead.
+ * @see \Drupal\mailchimphelper\Plugin\Rules\RulesCondition\IsSaving
+ */
+function mailchimphelper_user_presave(&$edit, $account) {
+  $saving = &drupal_static('mailchimphelper.' . $account->mail);
+  $saving = TRUE;
+}
+
+/**
+ * Implements hook_user_insert().
+ *
+ * All fields on the account are saved, so saving this account is allowed again.
+ *
+ * @see mailchimphelper_user_presave()
+ */
+function mailchimphelper_user_insert(&$edit, $account) {
+  $saving = &drupal_static('mailchimphelper.' . $account->mail);
+  $saving = FALSE;
+}
+
+/**
+ * Implements hook_user_update().
+ *
+ * All fields on the account are saved, so saving this account is allowed again.
+ *
+ * @see mailchimphelper_user_presave()
+ */
+function mailchimphelper_user_update(&$edit, $account) {
+  $saving = &drupal_static('mailchimphelper.' . $account->mail);
+  $saving = FALSE;
+}
