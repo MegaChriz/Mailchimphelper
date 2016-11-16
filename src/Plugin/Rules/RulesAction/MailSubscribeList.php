@@ -1,13 +1,6 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\mailchimphelper\Plugin\Rules\RulesAction\MailSubscribeList class.
- */
-
 namespace Drupal\mailchimphelper\Plugin\Rules\RulesAction;
-
-use \RulesAction;
 
 /**
  * Action plugin for subscribing a mail address to a mailchimp list.
@@ -46,12 +39,11 @@ class MailSubscribeList extends PluginBase {
 
     // Retrieve mergevars info for this list.
     $mergevars_per_list = mailchimp_get_mergevars(array($list_id));
-    $mergevars = $mergevars_per_list[$list_id]['merge_vars'];
 
     // Index list variables by id.
     $merge_vars_info = array();
-    foreach ($mergevars as $var) {
-      $id = 'mergevars_' . $var['id'];
+    foreach ($mergevars_per_list[$list_id] as $var) {
+      $id = 'mergevars_' . $var->tag;
       $merge_vars_info[$id] = $var;
     }
 
@@ -64,13 +56,15 @@ class MailSubscribeList extends PluginBase {
       if (isset($merge_vars_info[$param_key])) {
         // Yay. We found an argument that belongs to the mailchimp's merge variables,
         // set a mergevar variable.
-        $merge_vars_key = $merge_vars_info[$param_key]['tag'];
-        $merge_vars[$merge_vars_key] = $args[$arg_count];
+        $merge_vars_key = $merge_vars_info[$param_key]->tag;
+        if (strlen($args[$arg_count])) {
+          $merge_vars[$merge_vars_key] = $args[$arg_count];
+        }
 
         // One of the mailchimp's merge variables is expected to be a mail address.
         // We can get the mail address by checking the merge variables's field type.
         // @todo Maybe the email parameter should be a "native" parameter instead?
-        if (is_null($email) && $merge_vars_info[$param_key]['field_type'] == 'email') {
+        if (is_null($email) && $merge_vars_info[$param_key]->type == 'email') {
          // We take only the first one.
          $email = $args[$arg_count];
         }
@@ -79,7 +73,7 @@ class MailSubscribeList extends PluginBase {
     }
 
     // Subscribe e-mail!
-    mailchimp_subscribe($list_id, $email, $merge_vars, FALSE, FALSE, 'html', TRUE, FALSE);
+    mailchimp_subscribe($list_id, $email, $merge_vars, FALSE, FALSE, 'html');
   }
 
   /**
@@ -131,15 +125,15 @@ class MailSubscribeList extends PluginBase {
   /**
    * Options list callback for mergevar select fields.
    */
-  public function mergeVarOptionsList($element, $key) {
+  public static function mergeVarOptionsList($element, $key) {
     $list_id = $element->settings['list_id'];
     $mergevars_per_list = mailchimp_get_mergevars(array($list_id));
-    $mergevars = $mergevars_per_list[$list_id]['merge_vars'];
+    $mergevars = $mergevars_per_list[$list_id];
 
     foreach ($mergevars as $var) {
-      $id = 'mergevars_' . $var['id'];
+      $id = 'mergevars_' . $var->tag;
       if ($id == $key) {
-        return $var['choices'];
+        return $var->options->choices;
       }
     }
 

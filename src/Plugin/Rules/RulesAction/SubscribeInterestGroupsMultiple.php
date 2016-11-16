@@ -43,32 +43,23 @@ class SubscribeInterestGroupsMultiple extends PluginBase {
   /**
    * Action callback: Subscribe a mail address to multiple list groups.
    */
-  function execute($email, $list_id, $groups) {
-    $mergevars = array('EMAIL' => $email);
-    $mergevars['GROUPINGS'] = array();
-
-    // Groups will only be added, not removed. Filter out unchecked groups.
-    foreach ($groups as $group_id => $subgroups) {
-      $mergevar_grouping = array(
-        'id' => $group_id,
-        'groups' => array(),
-      );
-      foreach ($subgroups as $group_name => $enabled) {
+  function execute($email, $list_id, $int_groups) {
+    // Flatten interest list and only pick enabled ones.
+    $interests = array();
+    foreach ($int_groups as $category) {
+      foreach ($category as $group_id => $enabled) {
         if ($enabled) {
-          $mergevar_grouping['groups'][$group_name] = $group_name;
+          $interests[$group_id] = TRUE;
         }
-      }
-      if (count($mergevar_grouping['groups'])) {
-        $mergevars['GROUPINGS'][] = $mergevar_grouping;
       }
     }
 
     $subscribed = mailchimp_is_subscribed($list_id, $email);
     if (!$subscribed) {
-      mailchimp_subscribe($list_id, $email, $mergevars, FALSE, FALSE, 'html', TRUE, FALSE);
+      mailchimp_subscribe($list_id, $email, array(), $interests, FALSE, 'html');
     }
     else {
-      mailchimp_update_member($list_id, $email, $mergevars, 'html', FALSE);
+      mailchimp_update_member($list_id, $email, array(), $interests, 'html');
     }
   }
 

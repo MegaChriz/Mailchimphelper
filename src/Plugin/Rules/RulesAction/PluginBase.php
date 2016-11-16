@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\mailchimphelper\Plugin\Rules\RulesAction\PluginBase class.
- */
-
 namespace Drupal\mailchimphelper\Plugin\Rules\RulesAction;
 
 use \RulesActionHandlerBase;
@@ -18,7 +13,7 @@ class PluginBase extends RulesActionHandlerBase {
    */
   public static function defaultInfo() {
     return array(
-      'group' => t('Mailchimp'),
+      'group' => t('MailChimp'),
     );
   }
 

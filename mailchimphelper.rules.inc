@@ -12,8 +12,8 @@ function mailchimphelper_rules_data_info() {
   return array(
     'mailchimp_interest_groups' => array(
       'label' => t('interest groups'),
-      'parent' => 'list',
       'group' => t('MailChimp'),
+      'parent' => 'list',
       'ui class' => 'Drupal\mailchimphelper\Plugin\RulesDataUI\InterestGroups',
     ),
   );
@@ -29,20 +29,20 @@ function mailchimphelper_rules_action_mail_subscribe_list_info_alter(&$element_i
 
     // Retrieve mergevars info for this list.
     $mergevars_per_list = mailchimp_get_mergevars(array($list_id));
-    $mergevars = $mergevars_per_list[$list_id]['merge_vars'];
+    $mergevars = $mergevars_per_list[$list_id];
 
     // Create parameters for each variable.
     foreach ($mergevars as $var) {
-      $id = 'mergevars_' . $var['id'];
+      $id = 'mergevars_' . $var->tag;
       $param = array(
         'type' => 'text',
-        'label' => check_plain($var['name']),
+        'label' => check_plain($var->name),
         'default mode' => 'selector',
       );
-      if (isset($var['choices'])) {
-        $param['options list'] = 'mailchimphelper_rules_action_mail_subscribe_list_options';
+      if (isset($var->options->choices)) {
+        $param['options list'] = 'Drupal\mailchimphelper\Plugin\Rules\RulesAction\MailSubscribeList::mergeVarOptionsList';
       }
-      if (empty($var['req'])) {
+      if (empty($var->required)) {
         $param['optional'] = TRUE;
       }
       $element_info['parameter'][$id] = $param;

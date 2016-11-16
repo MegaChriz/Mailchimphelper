@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\mailchimphelper\Plugin\Rules\RulesCondition\IsSubscribed class.
- */
-
 namespace Drupal\mailchimphelper\Plugin\Rules\RulesCondition;
 
 /**

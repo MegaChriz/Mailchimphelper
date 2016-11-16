@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\mailchimphelper\Plugin\Rules\RulesCondition\IsSaving class.
- */
-
 namespace Drupal\mailchimphelper\Plugin\Rules\RulesCondition;
 
 /**
