@@ -68,10 +68,20 @@ class MailChimpGroupCategory {
   }
 
   /**
+   * Returns field type of category.
+   */
+  public function getType() {
+    if (!isset($this->object->type)) {
+      return 'checkboxes';
+    }
+    return $this->object->type;
+  }
+
+  /**
    * Returns whether or not this group is configured as 'hidden'.
    */
   public function isHidden() {
-    return ($this->object->type == 'hidden');
+    return ($this->getType() == 'hidden');
   }
 
   /**
@@ -136,7 +146,7 @@ class MailChimpGroupCategory {
     }
 
     // Set the form field type.
-    switch ($this->object->type) {
+    switch ($this->getType()) {
       case 'radio':
         $field_type = 'radios';
         break;
@@ -150,7 +160,7 @@ class MailChimpGroupCategory {
         break;
 
       default:
-        $field_type = $this->object->type;
+        $field_type = $this->getType();
     }
 
     // Extract the field options:
