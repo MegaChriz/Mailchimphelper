@@ -36,7 +36,7 @@ function mailchimphelper_rules_action_mail_subscribe_list_info_alter(&$element_i
       $id = 'mergevars_' . $var->tag;
       $param = array(
         'type' => 'text',
-        'label' => check_plain($var->name),
+        'label' => isset($var->name) ? check_plain($var->name) : $var->tag,
         'default mode' => 'selector',
       );
       if (isset($var->options->choices)) {

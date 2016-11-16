@@ -44,8 +44,18 @@ function mailchimphelper_get_lists_options() {
  * @see \Drupal\mailchimphelper\Plugin\Rules\RulesCondition\IsSaving
  */
 function mailchimphelper_user_presave(&$edit, $account) {
-  $saving = &drupal_static('mailchimphelper.' . $account->mail);
-  $saving = TRUE;
+  $mail = NULL;
+  if (isset($edit['mail'])) {
+    $mail = $edit['mail'];
+  }
+  elseif (isset($account->mail)) {
+    $mail = $account->mail;
+  }
+
+  if ($mail) {
+    $saving = &drupal_static('mailchimphelper.' . $mail);
+    $saving = TRUE;
+  }
 }
 
 /**
