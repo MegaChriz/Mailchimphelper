@@ -155,7 +155,10 @@ class MailChimpList implements MailChimpListInterface {
    * @return array
    *   A renderable form array.
    */
-  public function getInterestGroupsFormField(array $defaults, $email = NULL, array $options = array()) {
+  public function getInterestGroupsFormField($defaults, $email = NULL, array $options = array()) {
+    if (!is_array($defaults)) {
+      $defaults = unserialize($defaults);
+    }
     $return = array();
 
     // Option defaults.
