@@ -1,13 +1,14 @@
 <?php
 
-namespace Drupal\mailchimphelper\Tests\MailChimp;
+namespace Drupal\mailchimphelper\TestHelpers;
 
 use \stdClass;
+use Mailchimp\Tests\MailchimpLists as MailchimpListsBase;
 
 /**
  * Virtual MailChimp List.
  */
-class MailchimpLists extends \Mailchimp\Tests\MailchimpLists {
+class MailchimpLists extends MailchimpListsBase {
   /**
    * A list of subscribers.
    */

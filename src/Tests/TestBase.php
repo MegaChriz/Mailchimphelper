@@ -2,12 +2,14 @@
 
 namespace Drupal\mailchimphelper\Tests;
 
-use \stdClass;
-use DrupalWebTestCase;
-use Drupal\mailchimphelper\Tests\MailChimp\MailchimpLists;
+use \DrupalWebTestCase;
+use Drupal\mailchimphelper\TestHelpers\Util;
 
 /**
  * Base class for tests.
+ *
+ * Note: for the automated tests to work, the library must be installed with
+ * dev dependencies.
  */
 abstract class TestBase extends DrupalWebTestCase {
   /**
@@ -18,7 +20,7 @@ abstract class TestBase extends DrupalWebTestCase {
   protected $listId = '57afe96172';
 
   /**
-   * @var \Drupal\mailchimphelper\Tests\MailChimp\MailchimpLists;
+   * @var \Drupal\mailchimphelper\TestHelpers\MailchimpLists;
    */
   protected $list;
 
@@ -51,11 +53,7 @@ abstract class TestBase extends DrupalWebTestCase {
     variable_set('mailchimp_test_mode', TRUE);
 
     // Override the MailChimp list class to use.
-    mailchimp_get_api_object('MailchimpLists');
-    $this->list = &drupal_static('mailchimp_get_api_object');
-    if (!($this->list instanceof MailchimpLists)) {
-      $this->list = new MailchimpLists('MAILCHIMP_TEST_API_KEY', 'apikey', 60);
-    }
+    $this->list = &Util::overrideMailChimpLists();
   }
 
   /**

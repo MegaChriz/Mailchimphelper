@@ -5,7 +5,9 @@
  * Helper module for MailChimp Helper tests.
  */
 
-use Drupal\mailchimphelper\Tests\MailChimp\MailchimpLists;
+use Drupal\mailchimphelper\TestHelpers\Util;
+
+Util::register();
 
 /**
  * Implements hook_init().
@@ -14,11 +16,7 @@ use Drupal\mailchimphelper\Tests\MailChimp\MailchimpLists;
  */
 function mailchimphelpertest_init() {
   // Override the MailChimp list class to use.
-  mailchimp_get_api_object('MailchimpLists');
-  $list = &drupal_static('mailchimp_get_api_object');
-  if (!($list instanceof MailchimpLists)) {
-    $list = new MailchimpLists('MAILCHIMP_TEST_API_KEY', 'apikey', 60);
-  }
+  $list = &Util::overrideMailChimpLists();
 }
 
 /**
