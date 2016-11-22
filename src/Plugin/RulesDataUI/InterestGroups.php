@@ -32,7 +32,7 @@ class InterestGroups extends RulesDataUI implements RulesDataDirectInputFormInte
     $list_id = $settings['list_id'];
 
     $settings += array($name => isset($info['default value']) ? $info['default value'] : array());
-    $list = new MailChimpList($element->settings['list_id']);
+    $list = MailChimpList::getInstance($element->settings['list_id']);
     $mc_list = mailchimp_get_list($list_id);
     $form[$name] = $list->getInterestGroupsFormField($settings[$name], NULL, array(
       'include_hidden' => TRUE,
@@ -48,7 +48,7 @@ class InterestGroups extends RulesDataUI implements RulesDataDirectInputFormInte
     $data = array();
 
     if (isset($element->settings['list_id'])) {
-      $list = new MailChimpList($element->settings['list_id']);
+      $list = MailChimpList::getInstance($element->settings['list_id']);
       foreach ($values as $category_id => $category_values) {
         $category = $list->getGroupCategory($category_id);
         foreach ($category_values as $group_id => $enabled) {

@@ -22,7 +22,7 @@ abstract class TestBase extends DrupalWebTestCase {
   /**
    * @var \Drupal\mailchimphelper\TestHelpers\MailchimpLists;
    */
-  protected $list;
+  protected $apiList;
 
   /**
    * Pre-test setup function.
@@ -46,6 +46,7 @@ abstract class TestBase extends DrupalWebTestCase {
       'mailchimp_lists',
       'mailchimphelper',
       'mailchimphelpertest',
+      'composer_manager',
     ));
     parent::setUp($modules);
 
@@ -53,7 +54,15 @@ abstract class TestBase extends DrupalWebTestCase {
     variable_set('mailchimp_test_mode', TRUE);
 
     // Override the MailChimp list class to use.
-    $this->list = &Util::overrideMailChimpLists();
+    try {
+      $this->apiList = &Util::overrideMailChimpLists();
+    }
+    catch (\Exception $e) {
+      $this->exceptionHandler($e);
+      $this->tearDown();
+      $this->setup = FALSE;
+      return;
+    }
   }
 
   /**

@@ -25,6 +25,13 @@ class MailChimpList implements MailChimpListInterface {
   protected $list;
 
   /**
+   * The mergevars belonging to this list.
+   *
+   * @var array
+   */
+  protected $mergevars;
+
+  /**
    * The groups belonging to this list.
    *
    * @var array
@@ -44,7 +51,25 @@ class MailChimpList implements MailChimpListInterface {
   public function __construct($list_id) {
     $this->list_id = $list_id;
     $this->list = mailchimp_get_list($list_id);
+    $this->mergevars = array();
     $this->groups = array();
+  }
+
+  /**
+   * Get an instance of this list.
+   *
+   * @param string $list_id
+   *   The subscription list ID.
+   *
+   * @return Drupal\mailchimphelper\MailChimp\MailChimpList
+   *   An instance of this class.
+   */
+  public static function getInstance($list_id) {
+    $lists = &drupal_static(__METHOD__, array());
+    if (!isset($lists[$list_id])) {
+      $lists[$list_id] = new static($list_id);
+    }
+    return $lists[$list_id];
   }
 
   // ---------------------------------------------------------------------------
@@ -80,6 +105,40 @@ class MailChimpList implements MailChimpListInterface {
   }
 
   /**
+   * Returns a list of all merge vars.
+   *
+   * @return array
+   *   A list of merge vars.
+   */
+  public function getMergeVars($reset = FALSE) {
+    if (empty($this->mergevars) || $reset) {
+      $this->mergevars = array();
+
+      if (empty($this->list->mergevars)) {
+        return array();
+      }
+
+      foreach ($this->list->mergevars as $mergevar_data) {
+        $mergevar = new MailChimpMergeVar($this, $mergevar_data);
+        $this->mergevars[$mergevar->getId()] = $mergevar;
+      }
+    }
+
+    return $this->mergevars;
+  }
+
+  /**
+   * Returns if list has any interest groups.
+   *
+   * @return bool
+   *   TRUE if there are any interest groups.
+   *   FALSE otherwise.
+   */
+  public function hasGroups() {
+    return !empty($this->list->intgroups);
+  }
+
+  /**
    * Returns a list of all groups.
    */
   public function getAllGroups($reset = FALSE) {
@@ -98,6 +157,67 @@ class MailChimpList implements MailChimpListInterface {
     }
 
     return $this->groups;
+  }
+
+  /**
+   * Returns a list of category ID => category name.
+   *
+   * @return array
+   *   A list of categories.
+   */
+  public function getGroupCategoriesAsOptions() {
+    $return = array();
+
+    foreach ($this->getAllGroups() as $category) {
+      $return[$category->getId()] = $category->getName();
+    }
+
+    return $return;
+  }
+
+  /**
+   * Returns a multilist of category name => group ID => group name.
+   *
+   * @param string $category_index
+   *   (optional) How to index the categories.
+   *   Defaults to indexing them by name.
+   *
+   * @return array
+   *   A list of groups per category.
+   */
+  public function getGroupsAsOptions($category_index = 'name') {
+    $return = array();
+
+    foreach ($this->getAllGroups() as $category) {
+      foreach ($category->getGroups() as $category_id => $group) {
+        switch ($category_index) {
+          case 'id':
+            $return[$category->getId()][$group->getId()] = $group->getName();
+            break;
+
+          case 'name':
+            $return[$category->getName()][$group->getId()] = $group->getName();
+            break;
+        }
+      }
+    }
+
+    return $return;
+  }
+
+  /**
+   * Returns if specific group category exists.
+   *
+   * @param string $category_id
+   *   The ID of the group category to check for.
+   *
+   * @return bool
+   *   TRUE if category exists.
+   *   FALSE otherwise.
+   */
+  public function hasGroupCategory($category_id) {
+    $groups = $this->getAllGroups();
+    return isset($groups[$category_id]);
   }
 
   /**

@@ -132,6 +132,22 @@ class MailChimpGroupCategory {
   }
 
   /**
+   * Returns a list of group ID => group name.
+   *
+   * @return array
+   *   A list of groups.
+   */
+  public function getGroupsAsOptions() {
+    $return = array();
+
+    foreach ($this->getGroups() as $group) {
+      $return[$group->getId()] = $group->getName();
+    }
+
+    return $return;
+  }
+
+  /**
    * Returns editable form field for this category.
    *
    * @param array $defaults

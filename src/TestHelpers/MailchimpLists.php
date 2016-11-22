@@ -15,6 +15,11 @@ class MailchimpLists extends MailchimpListsBase {
   private $members = [];
 
   /**
+   * Additional merge vars.
+   */
+  private $merges = [];
+
+  /**
    * MailchimpLists object constructor.
    */
   public function __construct($api_key, $api_user = 'apikey', $http_options = []) {
@@ -24,6 +29,19 @@ class MailchimpLists extends MailchimpListsBase {
     foreach ($data as $key => $value) {
       $this->$key = $value;
     }
+  }
+
+  /**
+   * Adds an extra merge field to the list.
+   *
+   * @param int $merge_id
+   *   ID of the merge field.
+   * @param string $tag
+   *   Tag name of the merge field.
+   */
+  public function addMergeField($merge_id, $tag) {
+    $this->merges[$merge_id] = $tag;
+    $this->saveClassData();
   }
 
   /**
@@ -108,6 +126,26 @@ class MailchimpLists extends MailchimpListsBase {
   /**
    * {@inheritdoc}
    */
+  public function getMergeFields($list_id, $parameters = []) {
+    $response = parent::getMergeFields($list_id, $parameters);
+
+    if (count($this->merges)) {
+      foreach ($this->merges as $merge_id => $tag) {
+        $response->merge_fields[] = (object) [
+          'merge_id' => $merge_id,
+          'tag' => $tag,
+          'list_id' => $list_id,
+        ];
+      }
+      $response->total_items += count($this->merges);
+    }
+
+    return $response;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function addOrUpdateMember($list_id, $email, $parameters = [], $batch = FALSE) {
     $response = parent::addOrUpdateMember($list_id, $email, $parameters, $batch);
 
@@ -172,6 +210,9 @@ class MailchimpLists extends MailchimpListsBase {
    * Saves class data.
    */
   private function saveClassData() {
-    variable_set('mailchimphelper_mailchimplist_class_data', get_object_vars($this));
+    variable_set('mailchimphelper_mailchimplist_class_data', [
+      'members' => $this->members,
+      'merges' => $this->merges,
+    ]);
   }
 }
