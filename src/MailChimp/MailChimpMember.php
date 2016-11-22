@@ -66,6 +66,17 @@ class MailChimpMember {
   // ---------------------------------------------------------------------------
 
   /**
+   * Returns if member object is set correctly.
+   *
+   * @return bool
+   *   TRUE if the aggregated object exist.
+   *   FALSE otherwise.
+   */
+  public function dataExists() {
+    return isset($this->object);
+  }
+
+  /**
    * Magic getter.
    *
    * Returns data from aggregated object.
