@@ -82,7 +82,7 @@ class Webhook {
    * @return array
    *   Webhook data.
    */
-  protected function upemail($new_email = NULL, $old_email = NULL) {
+  public function upemail($new_email = NULL, $old_email = NULL) {
     return array(
       'type' => 'upemail',
       'data' => array(
@@ -145,7 +145,7 @@ class Webhook {
    */
   public function delete($email = NULL) {
     return array(
-      'type' => 'delete',
+      'type' => 'unsubscribe',
        'data' => $this->composeMemberData($email) + array(
          'action' => 'delete',
          'reason' => 'manual',
@@ -169,32 +169,33 @@ class Webhook {
 
     if ($email) {
       $data['email'] = $email;
+      $data['merges']['EMAIL'] = $email;
 
       $member = $this->list->getMemberInfo($email);
-
-      // Basic data.
-      $keys += array(
-        'id' => 'unique_email_id',
-        'email_type' => 'email_type',
-        'ip_opt' => 'ip_opt',
-      );
-      foreach ($keys as $webhook_key => $data_key) {
-        if (isset($member->$data_key)) {
-          $data[$webhook_key] = $member->$data_key;
+      if ($member->dataExists()) {
+        // Basic data.
+        $keys += array(
+          'id' => 'unique_email_id',
+          'email_type' => 'email_type',
+          'ip_opt' => 'ip_opt',
+        );
+        foreach ($keys as $webhook_key => $data_key) {
+          if (isset($member->$data_key)) {
+            $data[$webhook_key] = $member->$data_key;
+          }
         }
+
+        // Merge fields.
+        if (isset($member->merge_fields)) {
+          $data['merges'] += (array) $member->merge_fields;
+        }
+
+        // Interests.
+        $data['merges']['INTERESTS'] = $this->generateInterests($member);
+
+        // Interest groups.
+        $data['merges']['GROUPINGS'] = $this->generateGroupings($member);
       }
-
-      // Merge fields.
-      $data['merges']['EMAIL'] = $email;
-      if (isset($member->merge_fields)) {
-        $data['merges'] += (array) $member->merge_fields;
-      }
-
-      // Interests.
-      $data['merges']['INTERESTS'] = $this->generateInterests($member);
-
-      // Interest groups.
-      $data['merges']['GROUPINGS'] = $this->generateGroupings($member);
     }
 
     return $data + array(

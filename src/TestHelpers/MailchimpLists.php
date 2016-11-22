@@ -24,7 +24,13 @@ class MailchimpLists extends MailchimpListsBase {
    */
   public function __construct($api_key, $api_user = 'apikey', $http_options = []) {
     parent::__construct($api_key, $api_user, $http_options);
+    $this->init();
+  }
 
+  /**
+   * Initializes member data from variable.
+   */
+  public function init() {
     $data = variable_get('mailchimphelper_mailchimplist_class_data', array());
     foreach ($data as $key => $value) {
       $this->$key = $value;
@@ -146,16 +152,29 @@ class MailchimpLists extends MailchimpListsBase {
   /**
    * {@inheritdoc}
    */
+  public function updateMember($list_id, $email, $parameters = [], $batch = FALSE) {
+    $response = parent::updateMember($list_id, $email, $parameters, $batch);
+
+    // Merge with existing member data (which is expected to exist).
+    $member = $this->getMemberInfo($list_id, $email);
+    $this->mergeMemberInfo($member, $response);
+
+    // Save data.
+    $this->saveClassData();
+
+    return $member;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function addOrUpdateMember($list_id, $email, $parameters = [], $batch = FALSE) {
     $response = parent::addOrUpdateMember($list_id, $email, $parameters, $batch);
 
     $member = $this->getMemberInfo($list_id, $email);
     if ($member) {
       // Member already exist. Merge data.
-      // @todo merge recursively?
-      foreach (get_object_vars($response) as $key => $value) {
-        $member->$key = $value;
-      }
+      $this->mergeMemberInfo($member, $response);
     }
     else {
       $member = $response;
@@ -187,12 +206,27 @@ class MailchimpLists extends MailchimpListsBase {
     }
 
     // Add to list.
-    $this->members[$list_id][$email] = $response;
+    $this->members[$list_id][$email] = $member;
 
     // Save data.
     $this->saveClassData();
 
-    return $response;
+    return $member;
+  }
+
+  /**
+   * Merges data into existing member.
+   *
+   * @param object $member
+   *   The original member data.
+   * @param object $data
+   *   The new data.
+   */
+  protected function mergeMemberInfo($member, $data) {
+    // @todo merge recursively?
+    foreach (get_object_vars($data) as $key => $value) {
+      $member->{$key} = $value;
+    }
   }
 
   /**
