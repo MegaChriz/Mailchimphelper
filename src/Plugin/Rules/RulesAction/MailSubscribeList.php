@@ -73,7 +73,7 @@ class MailSubscribeList extends PluginBase {
     }
 
     // Subscribe e-mail!
-    mailchimp_subscribe($list_id, $email, $merge_vars, FALSE, FALSE, 'html');
+    mailchimp_subscribe($list_id, $email, $merge_vars, array(), FALSE, 'html');
   }
 
   /**
