@@ -38,6 +38,13 @@ class MailChimpList implements MailChimpListInterface {
    */
   protected $groups;
 
+  /**
+   * The members from this list that are requested.
+   *
+   * @var array
+   */
+  protected $members;
+
   // ---------------------------------------------------------------------------
   // CONSTRUCT
   // ---------------------------------------------------------------------------
@@ -53,6 +60,7 @@ class MailChimpList implements MailChimpListInterface {
     $this->list = mailchimp_get_list($list_id);
     $this->mergevars = array();
     $this->groups = array();
+    $this->members = array();
   }
 
   /**
@@ -256,8 +264,12 @@ class MailChimpList implements MailChimpListInterface {
    *   An instance of MailChimpMember.
    */
   public function getMember($email, $reset = FALSE) {
-    $memberinfo = mailchimp_get_memberinfo($this->list_id, $email, $reset);
-    return new MailChimpMember($this, $memberinfo);
+    if (!isset($this->members[$email]) || $reset) {
+      $memberinfo = mailchimp_get_memberinfo($this->list_id, $email, $reset);
+      $this->members[$email] = new MailChimpMember($this, $memberinfo);
+    }
+
+    return $this->members[$email];
   }
 
   /**
