@@ -31,7 +31,9 @@ class MailchimpLists extends MailchimpListsBase {
    * Initializes member data from variable.
    */
   public function init() {
-    $data = variable_get('mailchimphelper_mailchimplist_class_data', array());
+    global $conf;
+    $conf = variable_initialize();
+    $data = variable_get('mailchimphelper_mailchimplist_class_data', []);
     foreach ($data as $key => $value) {
       $this->$key = $value;
     }
@@ -152,6 +154,18 @@ class MailchimpLists extends MailchimpListsBase {
   /**
    * {@inheritdoc}
    */
+  public function removeMember($list_id, $email) {
+    parent::removeMember($list_id, $email);
+
+    unset($this->members[$list_id][$email]);
+
+    // Save data.
+    $this->saveClassData();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function updateMember($list_id, $email, $parameters = [], $batch = FALSE) {
     $response = parent::updateMember($list_id, $email, $parameters, $batch);
 
@@ -223,9 +237,14 @@ class MailchimpLists extends MailchimpListsBase {
    *   The new data.
    */
   protected function mergeMemberInfo($member, $data) {
-    // @todo merge recursively?
+    // Merge recursively.
     foreach (get_object_vars($data) as $key => $value) {
-      $member->{$key} = $value;
+      if (is_object($value) && isset($member->{$key})) {
+        $this->mergeMemberInfo($member->{$key}, $value);
+      }
+      else {
+        $member->{$key} = $value;
+      }
     }
   }
 
@@ -233,6 +252,10 @@ class MailchimpLists extends MailchimpListsBase {
    * {@inheritdoc}
    */
   public function getMemberInfo($list_id, $email, $parameters = []) {
+    // Make sure that our info is up to date.
+    $this->init();
+
+    // Try to find the member.
     if (isset($this->members[$list_id][$email])) {
       return $this->members[$list_id][$email];
     }
