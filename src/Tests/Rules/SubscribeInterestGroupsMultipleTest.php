@@ -45,7 +45,7 @@ class SubscribeInterestGroupsMultipleTest extends RulesTestBase {
 
     // Assert member being subscribed.
     $list = new MailChimpList($this->listId);
-    $member = $list->getMemberInfo($account->mail, TRUE);
+    $member = $list->getMember($account->mail, TRUE);
     $this->assertEqual($account->mail, $member->getMailAddress());
     $this->assertEqual('subscribed', $member->getStatus());
 

@@ -252,10 +252,10 @@ class MailChimpList implements MailChimpListInterface {
    * @param bool $reset
    *   Set to TRUE if member info should not be loaded from cache.
    *
-   * @return object
-   *   Member info object, empty if there is no valid info.
+   * @return \Drupal\mailchimphelper\MailChimp\MailChimpMember
+   *   An instance of MailChimpMember.
    */
-  public function getMemberInfo($email, $reset = FALSE) {
+  public function getMember($email, $reset = FALSE) {
     $memberinfo = mailchimp_get_memberinfo($this->list_id, $email, $reset);
     return new MailChimpMember($this, $memberinfo);
   }
@@ -287,7 +287,7 @@ class MailChimpList implements MailChimpListInterface {
     );
 
     if (!empty($email)) {
-      $interests = $this->getMemberInfo($email)->getGroups();
+      $interests = $this->getMember($email)->getGroups();
     }
 
     foreach ($this->getAllGroups() as $category_id => $category) {

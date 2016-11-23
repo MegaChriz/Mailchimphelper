@@ -38,7 +38,7 @@ class MailSubscribeListTest extends RulesTestBase {
 
     // Assert member being subscribed.
     $list = new MailChimpList($this->listId);
-    $member = $list->getMemberInfo($account->mail, TRUE);
+    $member = $list->getMember($account->mail, TRUE);
     $this->assertEqual($account->mail, $member->getMailAddress());
     $this->assertEqual($account->name, $member->getMergeField('FNAME'));
     $this->assertEqual(NULL, $member->getMergeField('LNAME'));

@@ -171,7 +171,7 @@ class Webhook {
       $data['email'] = $email;
       $data['merges']['EMAIL'] = $email;
 
-      $member = $this->list->getMemberInfo($email);
+      $member = $this->list->getMember($email);
       if ($member->dataExists()) {
         // Basic data.
         $keys += array(
