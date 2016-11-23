@@ -140,6 +140,38 @@ class MailChimpMember {
   }
 
   /**
+   * Returns if member is currently subscribed.
+   *
+   * @return bool
+   *   TRUE if the member is subscribed.
+   *   FALSE otherwise.
+   */
+  public function isSubscribed() {
+    try {
+      return $this->getStatus() == 'subscribed';
+    }
+    catch (MailChimpException $e) {
+      return FALSE;
+    }
+  }
+
+  /**
+   * Returns all merge variables.
+   *
+   * @return array
+   *   The member's merge vars.
+   */
+  public function getAllMerges() {
+    try {
+      $this->requireData();
+      return $this->object->merge_fields;
+    }
+    catch (MailChimpException $e) {
+      return array();
+    }
+  }
+
+  /**
    * Returns a merge variable.
    *
    * @param string $varname
