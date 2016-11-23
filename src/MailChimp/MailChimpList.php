@@ -81,6 +81,43 @@ class MailChimpList implements MailChimpListInterface {
   }
 
   // ---------------------------------------------------------------------------
+  // ACTION
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Subscribe a mail address to a list.
+   */
+  public function subscribe($email, $merge_vars = array(), $interests = array(), $options = array()) {
+    $options += array(
+      'double_optin' => FALSE,
+      'format' => 'html',
+    );
+    return mailchimp_subscribe_process($this->list_id, $email, $merge_vars, $interests, $options['double_optin'], $options['format']);
+  }
+
+  /**
+   * Unsubscribe a mail address from a list.
+   */
+  public function unsubscribe($email, $options = array()) {
+    $options += array(
+      'delete' => FALSE,
+      'goodbye' => FALSE,
+      'notify' => FALSE,
+    );
+    return mailchimp_unsubscribe_process($this->list_id, $email, $options['delete'], $options['goodbye'], $options['notify']);
+  }
+
+  /**
+   * Update a member on the list.
+   */
+  public function updateMember($email, $merge_vars = array(), $interests = array(), $options = array()) {
+    $options += array(
+      'format' => 'html',
+    );
+    return mailchimp_update_member_process($this->list_id, $email, $merge_vars, $interests, $options['format']);
+  }
+
+  // ---------------------------------------------------------------------------
   // GETTERS
   // ---------------------------------------------------------------------------
 
