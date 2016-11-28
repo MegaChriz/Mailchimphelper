@@ -42,13 +42,15 @@ class MailchimpLists extends MailchimpListsBase {
   /**
    * Adds an extra merge field to the list.
    *
+   * @param string $list_id
+   *   ID of the list where the merge field belongs to.
    * @param int $merge_id
    *   ID of the merge field.
    * @param string $tag
    *   Tag name of the merge field.
    */
-  public function addMergeField($merge_id, $tag) {
-    $this->merges[$merge_id] = $tag;
+  public function addMergeFieldByTag($list_id, $merge_id, $tag) {
+    $this->merges[$list_id][$merge_id] = $tag;
     $this->saveClassData();
   }
 
@@ -137,15 +139,15 @@ class MailchimpLists extends MailchimpListsBase {
   public function getMergeFields($list_id, $parameters = []) {
     $response = parent::getMergeFields($list_id, $parameters);
 
-    if (count($this->merges)) {
-      foreach ($this->merges as $merge_id => $tag) {
+    if (!empty($this->merges[$list_id])) {
+      foreach ($this->merges[$list_id] as $merge_id => $tag) {
         $response->merge_fields[] = (object) [
           'merge_id' => $merge_id,
           'tag' => $tag,
           'list_id' => $list_id,
         ];
       }
-      $response->total_items += count($this->merges);
+      $response->total_items += count($this->merges[$list_id]);
     }
 
     return $response;
