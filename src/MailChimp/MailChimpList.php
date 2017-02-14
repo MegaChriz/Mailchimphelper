@@ -190,11 +190,14 @@ class MailChimpList implements MailChimpListInterface {
     if (empty($this->groups) || $reset) {
       $this->groups = array();
 
-      if (empty($this->list->intgroups)) {
+      $mc_lists = mailchimp_get_api_object('MailchimpLists');
+      $int_category_data = $mc_lists->getInterestCategories($this->list->id, array('count' => 500));
+
+      if ($int_category_data->total_items < 1) {
         return array();
       }
 
-      foreach ($this->list->intgroups as $category_data) {
+      foreach ($int_category_data->categories as $category_data) {
         $category = new MailChimpGroupCategory($this, $category_data);
         $category->getGroups();
         $this->groups[$category->getId()] = $category;

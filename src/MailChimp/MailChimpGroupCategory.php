@@ -118,11 +118,14 @@ class MailChimpGroupCategory {
     if (empty($this->groups) || $reset) {
       $this->groups = array();
 
-      if (empty($this->object->interests)) {
+      $mc_lists = mailchimp_get_api_object('MailchimpLists');
+      $interest_data = $mc_lists->getInterests($this->list->getId(), $this->getId(), array('count' => 500));
+
+      if ($interest_data->total_items < 1) {
         return array();
       }
 
-      foreach ($this->object->interests as $group_data) {
+      foreach ($interest_data->interests as $group_data) {
         $group = new MailChimpGroup($this, $group_data);
         $this->groups[$group->getId()] = $group;
       }
