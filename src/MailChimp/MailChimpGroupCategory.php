@@ -118,14 +118,29 @@ class MailChimpGroupCategory {
     if (empty($this->groups) || $reset) {
       $this->groups = array();
 
-      $mc_lists = mailchimp_get_api_object('MailchimpLists');
-      $interest_data = $mc_lists->getInterests($this->list->getId(), $this->getId(), array('count' => 500));
+      $list_id = $this->list->getId();
+      $category_id = $this->getId();
+      $cid = 'list-' . $list_id . '-interests';
 
-      if ($interest_data->total_items < 1) {
-        return array();
+      // Try to retrieve interest groups from cache.
+      $cache = $reset ? NULL : cache_get($cid, 'cache_mailchimp');
+      $interests_per_category = !empty($cache) ? $cache->data : array();
+
+      if (!isset($interests_per_category[$category_id])) {
+        $mc_lists = mailchimp_get_api_object('MailchimpLists');
+        $interest_data = $mc_lists->getInterests($list_id, $category_id, array('count' => 500));
+
+        if ($interest_data->total_items < 1) {
+          $interests_per_category[$category_id] = array();
+          cache_set($cid, $interests_per_category, 'cache_mailchimp', CACHE_PERMANENT);
+          return array();
+        }
+
+        $interests_per_category[$category_id] = $interest_data->interests;
+        cache_set($cid, $interests_per_category, 'cache_mailchimp', CACHE_PERMANENT);
       }
 
-      foreach ($interest_data->interests as $group_data) {
+      foreach ($interests_per_category[$category_id] as $group_data) {
         $group = new MailChimpGroup($this, $group_data);
         $this->groups[$group->getId()] = $group;
       }

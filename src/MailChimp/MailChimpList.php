@@ -190,14 +190,27 @@ class MailChimpList implements MailChimpListInterface {
     if (empty($this->groups) || $reset) {
       $this->groups = array();
 
-      $mc_lists = mailchimp_get_api_object('MailchimpLists');
-      $int_category_data = $mc_lists->getInterestCategories($this->list->id, array('count' => 500));
+      // Try to retrieve interest categories from cache.
+      $cid = 'list-' . $this->getId() . '-interest-categories';
+      $cache = $reset ? NULL : cache_get($cid, 'cache_mailchimp');
+      if (!empty($cache)) {
+        $categories = $cache->data;
+      }
+      else {
+        // Make an API call.
+        $mc_lists = mailchimp_get_api_object('MailchimpLists');
+        $int_category_data = $mc_lists->getInterestCategories($this->getId(), array('count' => 500));
 
-      if ($int_category_data->total_items < 1) {
-        return array();
+        if ($int_category_data->total_items < 1) {
+          cache_set($cid, array(), 'cache_mailchimp', CACHE_PERMANENT);
+          return array();
+        }
+
+        $categories = $int_category_data->categories;
+        cache_set($cid, $categories, 'cache_mailchimp', CACHE_PERMANENT);
       }
 
-      foreach ($int_category_data->categories as $category_data) {
+      foreach ($categories as $category_data) {
         $category = new MailChimpGroupCategory($this, $category_data);
         $category->getGroups();
         $this->groups[$category->getId()] = $category;
