@@ -67,11 +67,13 @@ class MailchimpLists extends MailchimpListsBase {
           'list_id' => $list_id,
           'id' => 'cat1',
           'title' => 'Test Interest Category 1',
+          'type' => 'checkboxes',
         ],
         (object) [
           'list_id' => $list_id,
           'id' => 'cat2',
           'title' => 'Test Interest Category 2',
+          'type' => 'checkboxes',
         ],
       ],
       'total_items' => 2,
