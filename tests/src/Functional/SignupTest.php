@@ -21,7 +21,6 @@ class SignupTest extends MailchimphelperBrowserTestBase {
     'mailchimp_signup',
     'mailchimphelper',
     'mailchimphelper_test',
-    'yvklibrary',
   ];
 
   /**
