@@ -116,7 +116,7 @@ class SignupTest extends MailchimphelperBrowserTestBase {
   /**
    * Tests subscribing single list with interest groups set as default value.
    */
-  public function _testSubscribeWithDefaultValueSingeList() {
+  public function testSubscribeWithDefaultValueSingeList() {
     $this->createSignup();
     $this->container->get('router.builder')->rebuild();
 
