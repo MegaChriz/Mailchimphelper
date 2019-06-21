@@ -1,0 +1,13 @@
+# Third party settings for a mailchimp signup form.
+mailchimp_signup.mailchimp_signup.*.third_party.mailchimphelper:
+  type: mapping
+  label: 'Mailchimp Helper settings'
+  mapping:
+    default_interest_groups:
+      type: sequence
+      sequence:
+        type: sequence
+        sequence:
+          type: sequence
+          sequence:
+            type: string

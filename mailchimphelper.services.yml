@@ -1,0 +1,3 @@
+services:
+  mailchimphelper:
+    class: Drupal\mailchimphelper\Helper

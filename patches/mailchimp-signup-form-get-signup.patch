@@ -1,0 +1,67 @@
+diff --git a/modules/mailchimp_signup/src/Form/MailchimpSignupPageForm.php b/modules/mailchimp_signup/src/Form/MailchimpSignupPageForm.php
+index d53cbd5..e2ab8be 100644
+--- a/modules/mailchimp_signup/src/Form/MailchimpSignupPageForm.php
++++ b/modules/mailchimp_signup/src/Form/MailchimpSignupPageForm.php
+@@ -2,6 +2,7 @@
+ 
+ namespace Drupal\mailchimp_signup\Form;
+ 
++use Drupal\Core\Form\BaseFormIdInterface;
+ use Drupal\Core\Form\FormBase;
+ use Drupal\Core\Form\FormStateInterface;
+ use Drupal\Core\Url;
+@@ -10,7 +11,7 @@ use Drupal\mailchimp_signup\Entity\MailchimpSignup;
+ /**
+  * Subscribe to a Mailchimp list.
+  */
+-class MailchimpSignupPageForm extends FormBase {
++class MailchimpSignupPageForm extends FormBase implements BaseFormIdInterface {
+ 
+   /**
+    * The ID for this form.
+@@ -23,9 +24,9 @@ class MailchimpSignupPageForm extends FormBase {
+   /**
+    * The MailchimpSignup entity used to build this form.
+    *
+-   * @var MailchimpSignup
++   * @var \Drupal\mailchimp_signup\Entity\MailchimpSignup
+    */
+-  private $signup = nULL;
++  private $signup = NULL;
+ 
+   /**
+    * {@inheritdoc}
+@@ -38,10 +39,33 @@ class MailchimpSignupPageForm extends FormBase {
+     $this->formId = $formId;
+   }
+ 
++  /**
++   * Returns the signup entity used for this form.
++   *
++   * @return \Drupal\mailchimp_signup\Entity\MailchimpSignup
++   *   The attached signup entity.
++   */
++  public function getSignup() {
++    return $this->signup;
++  }
++
++  /**
++   * Sets the signup entity used for this form.
++   *
++   * @param \Drupal\mailchimp_signup\Entity\MailchimpSignup $signup
++   *   The signup entity to use for this form.
++   */
+   public function setSignup(MailchimpSignup $signup) {
+     $this->signup = $signup;
+   }
+ 
++  /**
++   * {@inheritdoc}
++   */
++  public function getBaseFormId() {
++    return 'mailchimp_signup_subscribe_form';
++  }
++
+   /**
+    * {@inheritdoc}
+    */

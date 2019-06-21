@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Only registers an autoload function for Mailchimp test classes.
+ */
+
+use Drupal\mailchimphelper_test\Autoloader;
+
+require_once('src/Autoloader.php');
+
+// Add autoloader for finding Mailchimp test classes.
+spl_autoload_register([Autoloader::class, 'searchClass']);
