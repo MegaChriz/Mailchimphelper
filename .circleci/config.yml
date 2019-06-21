@@ -112,22 +112,6 @@ code_sniffer: &code_sniffer
     - store_artifacts:
         path: /var/www/html/artifacts
 
-# Run code coverage tests. This invokes code-coverage-stats.sh.
-code_coverage: &code_coverage
-  <<: *defaults
-  steps:
-    - attach_workspace:
-        at: /var/www/html
-
-    - checkout
-
-    - run:
-        working_directory: /var/www/html
-        command: |
-          ./code-coverage-stats.sh $CIRCLE_PROJECT_REPONAME
-    - store_artifacts:
-        path: /var/www/html/artifacts
-
 # Declare all of the jobs we should run.
 version: 2
 jobs:
@@ -139,8 +123,6 @@ jobs:
      <<: *functional_tests
   run-code-sniffer:
      <<: *code_sniffer
-  run-code-coverage:
-     <<: *code_coverage
 
 workflows:
   version: 2
@@ -156,8 +138,5 @@ workflows:
           requires:
             - update-dependencies
       - run-code-sniffer:
-          requires:
-            - update-dependencies
-      - run-code-coverage:
           requires:
             - update-dependencies
