@@ -16,6 +16,7 @@
     "require-dev": {
         "bex/behat-screenshot": "^1.2",
         "composer/installers": "^1.2",
+        "cweagans/composer-patches": "^1.6",
         "drupal/coder": "^8.3",
         "phpmd/phpmd": "^2.6",
         "phpmetrics/phpmetrics": "^2.4",
@@ -23,5 +24,12 @@
         "symfony/phpunit-bridge": "^3.4.3",
         "symfony/psr-http-message-bridge": "1.1.1"
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "extra": {
+        "patches": {
+            "drupal/mailchimp": {
+                "Get signup object from signup form and set base form id": "patches/mailchimp-signup-form-get-signup.patch"
+            }
+        }
+    }
 }
