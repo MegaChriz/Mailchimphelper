@@ -2,6 +2,8 @@
 
 namespace Drupal\mailchimphelper\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
@@ -45,6 +47,13 @@ class MailchimpSignupFormatter extends EntityReferenceFormatterBase {
    */
   public static function isApplicable(FieldDefinitionInterface $field_definition) {
     return $field_definition->getSetting('handler') === 'default:mailchimp_signup';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function checkAccess(EntityInterface $entity) {
+    return AccessResult::allowed();
   }
 
 }
