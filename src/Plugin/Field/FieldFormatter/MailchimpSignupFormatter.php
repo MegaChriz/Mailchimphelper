@@ -30,7 +30,7 @@ class MailchimpSignupFormatter extends EntityReferenceFormatterBase {
     $elements = [];
 
     foreach ($this->getEntitiesToView($items, $langcode) as $delta => $signup) {
-      $form = new MailchimpSignupPageForm();
+      $form = new MailchimpSignupPageForm($this->messenger());
 
       $form_id = 'mailchimp_signup_subscribe_page_' . $signup->id . '_form';
       $form->setFormID($form_id);
