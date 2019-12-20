@@ -30,6 +30,9 @@ function mailchimphelper_rules_action_mail_subscribe_list_info_alter(&$element_i
     // Retrieve mergevars info for this list.
     $mergevars_per_list = mailchimp_get_mergevars(array($list_id));
     $mergevars = $mergevars_per_list[$list_id];
+    if (empty($mergevars)) {
+      return;
+    }
 
     // Create parameters for each variable.
     foreach ($mergevars as $var) {
