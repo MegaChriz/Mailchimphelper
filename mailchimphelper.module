@@ -7,6 +7,70 @@
 
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Queue\RequeueException;
+use Drupal\Core\Queue\SuspendQueueException;
+
+/**
+ * Number of seconds to run tasks from the "mailchimphelper_tag_member" queue.
+ *
+ * @var int
+ */
+const MAILCHIMPHELPER_TAG_MEMBER_TIME = 10;
+
+/**
+ * Implements hook_cron().
+ *
+ * Processes items from the queue 'mailchimphelper_tag_member'.
+ *
+ * Core's queue runner isn't used for that queue, because we don't want any
+ * requeued items to be processed during the same cron run. When an item cannot
+ * be processed right now, we want to retry it a few minutes later, so a
+ * requeued item should at least be postponed to the next cron.
+ */
+function mailchimphelper_cron() {
+  // Perform tasks from "mailchimphelper_tag_member" queue.
+  $queue_factory = \Drupal::service('queue');
+  $queue_name = 'mailchimphelper_tag_member';
+
+  // Make sure the queue exists.
+  $queue_factory->get($queue_name)->createQueue();
+
+  $queue_worker = \Drupal::service('plugin.manager.queue_worker')->createInstance($queue_name);
+  $end = time() + MAILCHIMPHELPER_TAG_MEMBER_TIME;
+  $queue = $queue_factory->get($queue_name);
+  $lease_time = MAILCHIMPHELPER_TAG_MEMBER_TIME;
+  while (time() < $end && ($item = $queue->claimItem($lease_time))) {
+    try {
+      if ($item->created > Drupal::time()->getRequestTime()) {
+        // Item was postponed! Release the item and continue to the next one.
+        $queue->releaseItem($item);
+        continue;
+      }
+
+      $queue_worker->processItem($item->data);
+      $queue->deleteItem($item);
+    }
+    catch (RequeueException $e) {
+      // The worker requested the task be immediately requeued.
+      $queue->releaseItem($item);
+    }
+    catch (SuspendQueueException $e) {
+      // If the worker indicates there is a problem with the whole queue,
+      // release the item and the queue.
+      $queue->releaseItem($item);
+
+      watchdog_exception('cron', $e);
+
+      // Stop the loop.
+      break;
+    }
+    catch (\Exception $e) {
+      // In case of any other kind of exception, log it and leave the item
+      // in the queue to be processed again later.
+      watchdog_exception('cron', $e);
+    }
+  }
+}
 
 /**
  * Implements hook_form_FORM_ID_alter() for form 'mailchimp_signup_add_form'.
