@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\mailchimphelper\Functional;
 
-use Drupal\mailchimp_test\MailchimpConfigOverrider;
 use Drupal\Tests\BrowserTestBase;
 
 /**

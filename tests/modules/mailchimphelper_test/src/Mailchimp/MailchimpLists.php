@@ -1,5 +1,7 @@
 <?php
 
+use Mailchimp\MailchimpLists;
+
 namespace Mailchimp\Tests;
 
 /**
@@ -7,7 +9,7 @@ namespace Mailchimp\Tests;
  *
  * @package Mailchimp\Tests
  */
-class MailchimpLists extends \Mailchimp\MailchimpLists {
+class MailchimpLists extends MailchimpLists {
 
   /**
    * @inheritdoc
@@ -16,10 +18,16 @@ class MailchimpLists extends \Mailchimp\MailchimpLists {
     $this->client = new MailchimpTestHttpClient();
   }
 
+  /**
+   *
+   */
   public function getClient() {
     return $this->client;
   }
 
+  /**
+   *
+   */
   public function getEndpoint() {
     return $this->endpoint;
   }

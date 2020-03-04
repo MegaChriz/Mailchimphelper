@@ -5,7 +5,7 @@ namespace Drupal\mailchimphelper\Mailchimp;
 /**
  * Class for Mailchimp list methods.
  */
-class List implements ListInterface {
+class MailchimpList implements ListInterface {
 
   // ---------------------------------------------------------------------------
   // PROPERTIES
@@ -59,9 +59,9 @@ class List implements ListInterface {
   public function __construct($list_id) {
     $this->list_id = $list_id;
     $this->list = mailchimp_get_list($list_id);
-    $this->mergevars = array();
-    $this->groups = array();
-    $this->members = array();
+    $this->mergevars = [];
+    $this->groups = [];
+    $this->members = [];
   }
 
   /**
@@ -74,7 +74,7 @@ class List implements ListInterface {
    *   An instance of this class.
    */
   public static function getInstance($list_id) {
-    $lists = &drupal_static(__METHOD__, array());
+    $lists = &drupal_static(__METHOD__, []);
     if (!isset($lists[$list_id])) {
       $lists[$list_id] = new static($list_id);
     }
@@ -88,33 +88,33 @@ class List implements ListInterface {
   /**
    * Subscribe a mail address to a list.
    */
-  public function subscribe($email, $merge_vars = array(), $interests = array(), $options = array()) {
-    $options += array(
+  public function subscribe($email, $merge_vars = [], $interests = [], $options = []) {
+    $options += [
       'double_optin' => FALSE,
       'format' => 'html',
-    );
+    ];
     return mailchimp_subscribe_process($this->list_id, $email, $merge_vars, $interests, $options['double_optin'], $options['format']);
   }
 
   /**
    * Unsubscribe a mail address from a list.
    */
-  public function unsubscribe($email, $options = array()) {
-    $options += array(
+  public function unsubscribe($email, $options = []) {
+    $options += [
       'delete' => FALSE,
       'goodbye' => FALSE,
       'notify' => FALSE,
-    );
+    ];
     return mailchimp_unsubscribe_process($this->list_id, $email, $options['delete'], $options['goodbye'], $options['notify']);
   }
 
   /**
    * Update a member on the list.
    */
-  public function updateMember($email, $merge_vars = array(), $interests = array(), $options = array()) {
-    $options += array(
+  public function updateMember($email, $merge_vars = [], $interests = [], $options = []) {
+    $options += [
       'format' => 'html',
-    );
+    ];
     return mailchimp_update_member_process($this->list_id, $email, $merge_vars, $interests, $options['format']);
   }
 
@@ -158,10 +158,10 @@ class List implements ListInterface {
    */
   public function getMergeVars($reset = FALSE) {
     if (empty($this->mergevars) || $reset) {
-      $this->mergevars = array();
+      $this->mergevars = [];
 
       if (empty($this->list->mergevars)) {
-        return array();
+        return [];
       }
 
       foreach ($this->list->mergevars as $mergevar_data) {
@@ -189,7 +189,7 @@ class List implements ListInterface {
    */
   public function getAllGroups($reset = FALSE) {
     if (empty($this->groups) || $reset) {
-      $this->groups = array();
+      $this->groups = [];
 
       // Try to retrieve interest categories from cache.
       $cid = 'list-' . $this->getId() . '-interest-categories';
@@ -200,11 +200,11 @@ class List implements ListInterface {
       else {
         // Make an API call.
         $mc_lists = mailchimp_get_api_object('Lists');
-        $int_category_data = $mc_lists->getInterestCategories($this->getId(), array('count' => 500));
+        $int_category_data = $mc_lists->getInterestCategories($this->getId(), ['count' => 500]);
 
         if ($int_category_data->total_items < 1) {
-          cache_set($cid, array(), 'cache_mailchimp', CACHE_PERMANENT);
-          return array();
+          cache_set($cid, [], 'cache_mailchimp', CACHE_PERMANENT);
+          return [];
         }
 
         $categories = $int_category_data->categories;
@@ -228,7 +228,7 @@ class List implements ListInterface {
    *   A list of categories.
    */
   public function getGroupCategoriesAsOptions() {
-    $return = array();
+    $return = [];
 
     foreach ($this->getAllGroups() as $category) {
       $return[$category->getId()] = $category->getName();
@@ -248,7 +248,7 @@ class List implements ListInterface {
    *   A list of groups per category.
    */
   public function getGroupsAsOptions($category_index = 'name') {
-    $return = array();
+    $return = [];
 
     foreach ($this->getAllGroups() as $category) {
       foreach ($category->getGroups() as $category_id => $group) {
@@ -298,9 +298,9 @@ class List implements ListInterface {
     $groups = $this->getAllGroups();
 
     if (!isset($groups[$category_id])) {
-      throw new MailchimpException(strtr('Group category @category_id does not exist.', array(
+      throw new MailchimpException(strtr('Group category @category_id does not exist.', [
         '@category_id' => $category_id,
-      )));
+      ]));
     }
 
     return $groups[$category_id];
@@ -341,16 +341,16 @@ class List implements ListInterface {
    * @return array
    *   A renderable form array.
    */
-  public function getInterestGroupsFormField($defaults, $email = NULL, array $options = array()) {
+  public function getInterestGroupsFormField($defaults, $email = NULL, array $options = []) {
     if (!is_array($defaults)) {
       $defaults = unserialize($defaults);
     }
-    $return = array();
+    $return = [];
 
     // Option defaults.
-    $options += array(
+    $options += [
       'include_hidden' => FALSE,
-    );
+    ];
 
     if (!empty($email)) {
       $interests = $this->getMember($email)->getGroups();
@@ -362,14 +362,14 @@ class List implements ListInterface {
       }
 
       if (!empty($interests)) {
-        $group_defaults = array();
+        $group_defaults = [];
         foreach ($category->getGroups() as $group) {
           $group_id = $group->getId();
           $group_defaults[$group_id] = !empty($interests->{$group_id}) ? $group_id : 0;
         }
       }
       else {
-        $group_defaults = isset($defaults[$category_id]) ? $defaults[$category_id] : array();
+        $group_defaults = isset($defaults[$category_id]) ? $defaults[$category_id] : [];
       }
 
       $return[$category_id] = $category->getFormField($group_defaults);

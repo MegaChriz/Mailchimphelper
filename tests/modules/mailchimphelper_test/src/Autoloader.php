@@ -28,7 +28,7 @@ class Autoloader {
       $file_part = strtr($parts[2], '\\', '/') . '.php';
       foreach ($dirs as $dir) {
         if (file_exists($dir . $file_part)) {
-          require_once($dir . $file_part);
+          require_once $dir . $file_part;
           return;
         }
       }

@@ -2,7 +2,7 @@
 
 namespace Drupal\mailchimphelper\Mailchimp;
 
-use \stdClass;
+use stdClass;
 
 /**
  * Class for a Mailchimp member.
@@ -168,7 +168,7 @@ class Member {
       return $this->object->merge_fields;
     }
     catch (Exception $e) {
-      return array();
+      return [];
     }
   }
 
@@ -198,7 +198,7 @@ class Member {
       return $this->object->interests;
     }
     catch (Exception $e) {
-      return array();
+      return [];
     }
   }
 
@@ -209,7 +209,7 @@ class Member {
    *   The member's interests, indexed by ID -> title.
    */
   public function getGroupsWithTitle() {
-    $return = array();
+    $return = [];
     $interests = $this->getGroups();
 
     if (!empty($interests)) {
@@ -230,7 +230,7 @@ class Member {
    * Returns a list of interest groups, indexed per category.
    */
   public function getGroupsPerCategory() {
-    $return = array();
+    $return = [];
     $interests = $this->getGroups();
 
     if (!empty($interests)) {
@@ -249,17 +249,17 @@ class Member {
    * Returns a list of interest groups with title, indexed per category.
    */
   public function getGroupsWithTitlePerCategory() {
-    $return = array();
+    $return = [];
     $interests = $this->getGroups();
 
     if (!empty($interests)) {
       $groups = $this->list->getAllGroups();
       foreach ($groups as $category_id => $category) {
-        $return[$category_id] = array(
+        $return[$category_id] = [
           'id' => $category->getId(),
           'name' => $category->getName(),
-          'groups' => array(),
-        );
+          'groups' => [],
+        ];
 
         foreach ($category->getGroups() as $group_id => $group) {
           if (!empty($interests->{$group_id})) {

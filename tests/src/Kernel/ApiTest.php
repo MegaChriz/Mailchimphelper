@@ -12,7 +12,7 @@ class ApiTest extends MailchimpHelperKernelTestBase {
   /**
    * Tests that the test API has been loaded.
    */
-  function testApi() {
+  public function testApi() {
     $mailchimp_api = mailchimp_get_api_object();
 
     $this->assertNotNull($mailchimp_api);

@@ -47,7 +47,7 @@ class GroupCategory {
   public function __construct(ListInterface $list, $data) {
     $this->list = $list;
     $this->object = $data;
-    $this->groups = array();
+    $this->groups = [];
   }
 
   // ---------------------------------------------------------------------------
@@ -101,9 +101,9 @@ class GroupCategory {
     $groups = $this->getGroups();
 
     if (!isset($groups[$group_id])) {
-      throw new MailchimpException(strtr('Group @group_id does not exist.', array(
+      throw new MailchimpException(strtr('Group @group_id does not exist.', [
         '@group_id' => $group_id,
-      )));
+      ]));
     }
 
     return $groups[$group_id];
@@ -117,7 +117,7 @@ class GroupCategory {
    */
   public function getGroups($reset = FALSE) {
     if (empty($this->groups) || $reset) {
-      $this->groups = array();
+      $this->groups = [];
 
       $list_id = $this->list->getId();
       $category_id = $this->getId();
@@ -125,16 +125,16 @@ class GroupCategory {
 
       // Try to retrieve interest groups from cache.
       $cache = $reset ? NULL : cache_get($cid, 'cache_mailchimp');
-      $interests_per_category = !empty($cache) ? $cache->data : array();
+      $interests_per_category = !empty($cache) ? $cache->data : [];
 
       if (!isset($interests_per_category[$category_id])) {
         $mc_lists = mailchimp_get_api_object('Lists');
-        $interest_data = $mc_lists->getInterests($list_id, $category_id, array('count' => 500));
+        $interest_data = $mc_lists->getInterests($list_id, $category_id, ['count' => 500]);
 
         if ($interest_data->total_items < 1) {
-          $interests_per_category[$category_id] = array();
+          $interests_per_category[$category_id] = [];
           cache_set($cid, $interests_per_category, 'cache_mailchimp', CACHE_PERMANENT);
-          return array();
+          return [];
         }
 
         $interests_per_category[$category_id] = $interest_data->interests;
@@ -157,7 +157,7 @@ class GroupCategory {
    *   A list of groups.
    */
   public function getGroupsAsOptions() {
-    $return = array();
+    $return = [];
 
     foreach ($this->getGroups() as $group) {
       $return[$group->getId()] = $group->getName();
@@ -175,7 +175,7 @@ class GroupCategory {
    * @return array
    *   A renderable form array.
    */
-  public function getFormField($defaults = array()) {
+  public function getFormField($defaults = []) {
     if (!empty($email)) {
       $memberinfo = mailchimp_get_memberinfo($list->id, $email);
     }
@@ -199,12 +199,12 @@ class GroupCategory {
     }
 
     // Extract the field options:
-    $options = array();
+    $options = [];
     if ($field_type == 'select') {
       $options[''] = '-- select --';
     }
 
-    $default_values = array();
+    $default_values = [];
 
     // Set interest options and default values.
     foreach ($this->getGroups() as $group) {
@@ -213,22 +213,22 @@ class GroupCategory {
 
     $name = $this->getName();
     if ($this->isHidden()) {
-      $name = t('@name (hidden)', array(
+      $name = t('@name (hidden)', [
         '@name' => $name,
-      ));
+      ]);
     }
 
-    return array(
+    return [
       '#type' => $field_type,
       '#title' => $name,
       '#options' => $options,
       '#default_value' => $defaults,
-      '#attributes' => array(
-        'class' => array(
+      '#attributes' => [
+        'class' => [
           'mailchimp-newsletter-interests-' . $this->list->getId(),
-        ),
-      ),
-    );
+        ],
+      ],
+    ];
   }
 
 }
