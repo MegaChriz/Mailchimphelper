@@ -3,8 +3,9 @@ description = Extra features for MailChimp, such as exta rules actions. Depends 
 package = "MailChimp"
 core = 7.x
 version = "7.x-3.0-alpha2"
+php = 7.0
 
-dependencies[] = mailchimp
+dependencies[] = mailchimp:mailchimp
+dependencies[] = psr0:psr0
 
 test_dependencies[] = rules:rules
-test_dependencies[] = psr0:psr0

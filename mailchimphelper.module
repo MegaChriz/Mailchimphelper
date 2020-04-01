@@ -5,6 +5,20 @@
  * Extra features for MailChimp, such as exta rules actions.
  */
 
+use Drupal\mailchimphelper\Helper;
+use Drupal\mailchimphelper\Mailchimp\MailChimpList;
+
+// Require code for fields.
+require_once 'mailchimphelper.field.inc';
+
+/**
+ * Implements hook_cron().
+ */
+function mailchimphelper_cron() {
+  $helper = new Helper();
+  $helper->processTagsMemberQueue();
+}
+
 /**
  * Implements hook_rules_directory().
  */
@@ -80,4 +94,253 @@ function mailchimphelper_user_insert(&$edit, $account) {
 function mailchimphelper_user_update(&$edit, $account) {
   $saving = &drupal_static('mailchimphelper.' . $account->mail);
   $saving = FALSE;
+}
+
+/**
+ * Form alters.
+ */
+
+/**
+ * Implements hook_form_FORM_ID_alter() for form 'mailchimp_signup_form'.
+ *
+ * Adds option to set default interest groups.
+ */
+function mailchimphelper_form_mailchimp_signup_form_alter(array &$form, array &$form_state) {
+  $default_interest_groups = [];
+  if (isset($form_state['signup'])) {
+    $signup = $form_state['signup'];
+    if (isset($signup->settings['default_interest_groups'])) {
+      $default_interest_groups = $signup->settings['default_interest_groups'];
+    }
+  }
+
+  $form['subscription_settings']['default_interest_groups'] = [
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#title' => t('Default interest groups'),
+    '#tree' => TRUE,
+  ];
+
+  foreach (mailchimp_get_lists() as $list_id => $list) {
+    if (!isset($list->intgroups)) {
+      continue;
+    }
+
+    $defaults = $default_interest_groups[$list_id] ?? [];
+
+    $form['subscription_settings']['default_interest_groups'][$list_id] = [
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#title' => format_string('@name', ['@name' => $list->name]),
+      '#tree' => TRUE,
+    ];
+
+    $list = MailChimpList::getInstance($list_id);
+    $form['subscription_settings']['default_interest_groups'][$list_id] += $list->getInterestGroupsFormField($defaults, NULL, [
+      'include_hidden' => TRUE,
+    ]);
+  }
+
+  // Add submit handler.
+  $form['#submit'][] = 'mailchimphelper_form_mailchimp_signup_form_submit';
+}
+
+/**
+ * Submit handler for form 'mailchimp_signup_edit_form'.
+ *
+ * Saves default interest groups.
+ */
+function mailchimphelper_form_mailchimp_signup_form_submit(array &$form, array &$form_state) {
+  $signup = mailchimp_signup_load($form_state['values']['name']);
+  $default_interest_groups = $form_state['values']['default_interest_groups'];
+
+  // Filter out unchecked groups.
+  foreach ($default_interest_groups as $list_id => $interest_groups) {
+    foreach ($interest_groups as $interest_group_id => $groups) {
+      if (empty($groups)) {
+        continue;
+      }
+      $interest_groups[$interest_group_id] = array_filter($groups);
+    }
+    $default_interest_groups[$list_id] = array_filter($interest_groups);
+  }
+  $default_interest_groups = array_filter($default_interest_groups);
+
+  // Set default interest groups!
+  $signup->settings['default_interest_groups'] = $default_interest_groups;
+  $signup->save();
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for 'mailchimp_signup_subscribe_form'.
+ *
+ * @see mailchimphelper_form_mailchimp_signup_subscribe_form_submit()
+ */
+function mailchimphelper_form_mailchimp_signup_subscribe_form_alter(array &$form, array &$form_state) {
+  // Set default interest groups.
+  $signup = reset($form_state['build_info']['args']);
+  if (!empty($signup->settings['default_interest_groups'])) {
+    $default_interest_groups = $signup->settings['default_interest_groups'];
+
+    $list_ids = array_filter($signup->mc_lists);
+
+    // Set default interest groups.
+    if (count($list_ids) === 1) {
+      // A single list.
+      $list_id = current($list_ids);
+      if (isset($form['mailchimp_lists']['interest_groups']) && !empty($default_interest_groups[$list_id])) {
+        mailchimphelper_set_default_interest_groups($form['mailchimp_lists']['interest_groups'], $default_interest_groups[$list_id]);
+      }
+    }
+    else {
+      // Multiple lists.
+      foreach ($list_ids as $list_id) {
+        // Check if there are default interest groups for this list.
+        if (empty($default_interest_groups[$list_id])) {
+          // None. Go to the next list.
+          continue;
+        }
+
+        if (isset($form['mailchimp_lists']['mailchimp_' . $list_id]['interest_groups']) && !empty($default_interest_groups[$list_id])) {
+          mailchimphelper_set_default_interest_groups($form['mailchimp_lists']['mailchimp_' . $list_id]['interest_groups'], $default_interest_groups[$list_id]);
+        }
+      }
+    }
+
+    // Make sure that interest groups are set.
+    array_unshift($form['#submit'], 'mailchimphelper_form_mailchimp_signup_subscribe_form_submit__add_groups');
+  }
+
+  // Add submit handler for processing tags.
+  $form['#submit'][] = 'mailchimphelper_form_mailchimp_signup_subscribe_form_submit__add_tags';
+}
+
+/**
+ * Submit handler for mailchimp signup subscribe form.
+ *
+ * Sets interest groups.
+ *
+ * @see mailchimphelper_form_mailchimp_signup_subscribe_form_alter()
+ * @todo add support for multiple lists.
+ */
+function mailchimphelper_form_mailchimp_signup_subscribe_form_submit__add_groups(array &$form, array &$form_state) {
+  $signup = reset($form_state['build_info']['args']);
+  if (empty($signup->settings['default_interest_groups'])) {
+    return;
+  }
+  $default_interest_groups = $signup->settings['default_interest_groups'];
+  $list_ids = $signup->mc_lists;
+  $email = $form_state['values']['mergevars']['EMAIL'];
+
+  // Compose the list of interest groups for each list.
+  foreach ($list_ids as $list_id) {
+    $list = MailChimpList::getInstance($list_id);
+
+    // First, get member info (if available).
+    $member_groups = $list->getMember($email)->getGroupsPerCategory();
+
+    // Get groups from form state.
+    if (count($list_ids) === 1) {
+      $new_groups = isset($form_state['values']['mailchimp_lists']['interest_groups']) ? $form_state['values']['mailchimp_lists']['interest_groups'] : [];
+    }
+    else {
+      // @todo
+    }
+
+    // Now create the list of interest groups to subscribe the member to.
+    $interest_group = array();
+    foreach ($list->getAllGroups() as $category_id => $category) {
+      foreach ($category->getGroups() as $group_id => $group) {
+        $subscribe = FALSE;
+
+        // First, check member info as existing groups should not be overwritten.
+        if (!empty($member_groups[$category_id][$group_id])) {
+          $subscribe = TRUE;
+        }
+        // Then check new groups (if available).
+        elseif (isset($new_groups[$category_id][$group_id])) {
+          $subscribe = !empty($new_groups[$category_id][$group_id]);
+        }
+        // Finally, check defaults.
+        elseif (!empty($default_interest_groups[$list_id][$category_id][$group_id])) {
+          $subscribe = TRUE;
+        }
+
+        // Save the choice.
+        $interest_group[$category_id][$group_id] = $subscribe ? $group_id : 0;
+      }
+    }
+
+    // And put it into form_state.
+    if (!empty($interest_group)) {
+      if (count($list_ids) === 1) {
+        $form_state['values']['mailchimp_lists']['interest_groups'] = $interest_group;
+      }
+      else {
+        // @todo
+      }
+    }
+  }
+}
+
+/**
+ * Submit handler for mailchimp signup subscribe form.
+ *
+ * Sends tags.
+ *
+ * @see mailchimphelper_form_mailchimp_signup_subscribe_form_alter()
+ */
+function mailchimphelper_form_mailchimp_signup_subscribe_form_submit__add_tags(array &$form, array &$form_state) {
+  // Add in tags (if given).
+  $tags = [];
+  foreach ($form_state['build_info']['args'] as $arg) {
+    if (is_array($arg) && isset($arg['tags'])) {
+      $tags = $arg['tags'];
+    }
+  }
+
+  if (!empty($tags)) {
+    $helper = new Helper();
+
+    // Get lists.
+    $signup = reset($form_state['build_info']['args']);
+    $list_details = mailchimp_get_lists($signup->mc_lists);
+    // If we only have one list we won't have checkbox values to investigate:
+    if (count($signup->mc_lists) == 1) {
+      $subscribe_lists[0] = reset($signup->mc_lists);
+    }
+    else {
+      // We can look at the checkbox values now:
+      foreach ($form_state['values']['mailchimp_lists'] as $list) {
+        if ($list['subscribe']) {
+          $subscribe_lists[] = $list['subscribe'];
+        }
+      }
+    }
+
+    $email = $form_state['values']['mergevars']['EMAIL'];
+
+    // Loop through the selected lists and try to subscribe:
+    foreach ($subscribe_lists as $list_id) {
+      $helper->addTagsMember($list_id, $tags, $email);
+    }
+  }
+}
+
+/**
+ * Sets default interest groups on element.
+ *
+ * @param array $element
+ *   The interest groups form element for one list.
+ * @param array $defaults
+ *   The default interest groups to tick.
+ */
+function mailchimphelper_set_default_interest_groups(&$element, $defaults) {
+  foreach ($element as $interest_group_id => &$group) {
+    if (isset($defaults[$interest_group_id])) {
+      $group['#default_value'] = $defaults[$interest_group_id];
+    }
+  }
 }
