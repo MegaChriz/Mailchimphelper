@@ -6,6 +6,6 @@ version = "7.x-3.0-alpha2"
 php = 7.0
 
 dependencies[] = mailchimp:mailchimp
-dependencies[] = psr0:psr0
 
 test_dependencies[] = rules:rules
+test_dependencies[] = psr0:psr0
