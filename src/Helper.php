@@ -2,7 +2,7 @@
 
 namespace Drupal\mailchimphelper;
 
-use Drupal\mailchimphelper\Mailchimp\MailchimpList;
+use Drupal\mailchimphelper\MailChimp\MailchimpList;
 use Drupal\mailchimphelper\Plugin\QueueWorker\MailchimpAddTag;
 use DrupalQueue;
 use Exception;
