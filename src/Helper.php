@@ -47,6 +47,12 @@ class Helper {
     $queue = DrupalQueue::get($queue_name);
     while (time() < $end && ($item = $queue->claimItem())) {
       try {
+        if ($item->created > REQUEST_TIME) {
+          // Item was postponed! Release the item and continue to the next one.
+          $queue->releaseItem($item);
+          continue;
+        }
+
         $queue_worker->processItem($item->data);
         $queue->deleteItem($item);
       }
