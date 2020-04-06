@@ -44,6 +44,12 @@ class Helper {
     $queue_name = 'mailchimphelper_tag_member';
 
     $end = time() + static::TAG_MEMBER_TIME;
+
+    // Make sure that queue class is overridden for this queue.
+    $queue_class = variable_get('queue_class_' . $queue_name);
+    if (!$queue_class || $queue_class == 'SystemQueue') {
+      variable_set('queue_class_' . $queue_name, Queue::class);
+    }
     $queue = DrupalQueue::get($queue_name);
     while (time() < $end && ($item = $queue->claimItem())) {
       try {
