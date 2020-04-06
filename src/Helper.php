@@ -50,8 +50,11 @@ class Helper {
       $member = $mc_lists->getMemberInfo($list_id, $email);
     }
     catch (MailchimpAPIException $e) {
-      // Ignore exceptions.
-      watchdog_exception('mailchimp', $e);
+      if ($e->getCode() !== 404) {
+        // 404 indicates the email address is not subscribed to this list
+        // and can be safely ignored. Surface all other exceptions.
+        watchdog_exception('mailchimp', $e);
+      }
     }
 
     try {
@@ -64,7 +67,7 @@ class Helper {
       }
     }
     catch (MailchimpAPIException $e) {
-      // Ignore exceptions.
+      // Log exceptions.
       watchdog_exception('mailchimp', $e);
     }
 
