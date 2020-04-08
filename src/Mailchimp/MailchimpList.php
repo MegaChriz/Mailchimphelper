@@ -7,6 +7,8 @@ namespace Drupal\mailchimphelper\Mailchimp;
  */
 class MailchimpList implements ListInterface {
 
+  use CacheTrait;
+
   // ---------------------------------------------------------------------------
   // PROPERTIES
   // ---------------------------------------------------------------------------
@@ -193,22 +195,22 @@ class MailchimpList implements ListInterface {
 
       // Try to retrieve interest categories from cache.
       $cid = 'list-' . $this->getId() . '-interest-categories';
-      $cache = $reset ? NULL : cache_get($cid, 'cache_mailchimp');
+      $cache = $reset ? NULL : $this->cacheGet($cid);
       if (!empty($cache)) {
-        $categories = $cache->data;
+        $categories = $cache;
       }
       else {
         // Make an API call.
-        $mc_lists = mailchimp_get_api_object('Lists');
+        $mc_lists = mailchimp_get_api_object('MailchimpLists');
         $int_category_data = $mc_lists->getInterestCategories($this->getId(), ['count' => 500]);
 
         if ($int_category_data->total_items < 1) {
-          cache_set($cid, [], 'cache_mailchimp', CACHE_PERMANENT);
+          $this->cacheSet($cid, []);
           return [];
         }
 
         $categories = $int_category_data->categories;
-        cache_set($cid, $categories, 'cache_mailchimp', CACHE_PERMANENT);
+        $this->cacheSet($cid, $categories);
       }
 
       foreach ($categories as $category_data) {

@@ -7,6 +7,8 @@ namespace Drupal\mailchimphelper\Mailchimp;
  */
 class GroupCategory {
 
+  use CacheTrait;
+
   // ---------------------------------------------------------------------------
   // PROPERTIES
   // ---------------------------------------------------------------------------
@@ -124,21 +126,21 @@ class GroupCategory {
       $cid = 'list-' . $list_id . '-interests';
 
       // Try to retrieve interest groups from cache.
-      $cache = $reset ? NULL : cache_get($cid, 'cache_mailchimp');
-      $interests_per_category = !empty($cache) ? $cache->data : [];
+      $cache = $reset ? NULL : $this->cacheGet($cid);
+      $interests_per_category = !empty($cache) ? $cache : [];
 
       if (!isset($interests_per_category[$category_id])) {
-        $mc_lists = mailchimp_get_api_object('Lists');
+        $mc_lists = mailchimp_get_api_object('MailchimpLists');
         $interest_data = $mc_lists->getInterests($list_id, $category_id, ['count' => 500]);
 
         if ($interest_data->total_items < 1) {
           $interests_per_category[$category_id] = [];
-          cache_set($cid, $interests_per_category, 'cache_mailchimp', CACHE_PERMANENT);
+          $this->cacheSet($cid, $interests_per_category);
           return [];
         }
 
         $interests_per_category[$category_id] = $interest_data->interests;
-        cache_set($cid, $interests_per_category, 'cache_mailchimp', CACHE_PERMANENT);
+        $this->cacheSet($cid, $interests_per_category);
       }
 
       foreach ($interests_per_category[$category_id] as $group_data) {
