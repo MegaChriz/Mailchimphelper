@@ -1,8 +1,8 @@
 <?php
 
-use Mailchimp\MailchimpLists;
-
 namespace Mailchimp\Tests;
+
+use Mailchimp\MailchimpLists;
 
 /**
  * Mailchimp Lists library test cases.
