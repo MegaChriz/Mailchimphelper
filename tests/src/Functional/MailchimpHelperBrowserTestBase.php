@@ -12,6 +12,11 @@ abstract class MailchimpHelperBrowserTestBase extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'mailchimp',
     'mailchimp_test',

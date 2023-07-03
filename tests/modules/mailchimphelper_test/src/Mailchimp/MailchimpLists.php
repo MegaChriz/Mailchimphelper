@@ -2,14 +2,14 @@
 
 namespace Mailchimp\Tests;
 
-use Mailchimp\MailchimpLists;
+use Mailchimp\MailchimpLists as MailchimpListsBase;
 
 /**
  * Mailchimp Lists library test cases.
  *
  * @package Mailchimp\Tests
  */
-class MailchimpLists extends MailchimpLists {
+class MailchimpLists extends MailchimpListsBase {
 
   /**
    * @inheritdoc

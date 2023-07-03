@@ -124,7 +124,8 @@ class SignupTest extends MailchimphelperBrowserTestBase {
     $edit = [
       'mergevars[EMAIL]' => 'test@example.com',
     ];
-    $this->drupalPostForm('signup', $edit, 'Submit');
+    $this->drupalGet('signup');
+    $this->submitForm($edit, 'Submit');
 
     $uri = 'https://us1.api.mailchimp.com/3.0/lists/57afe96172/members/55502f40dc8b7c769880b10874abc9d0';
     $expected_interests = (object) [
@@ -151,7 +152,8 @@ class SignupTest extends MailchimphelperBrowserTestBase {
     $edit = [
       'mergevars[EMAIL]' => 'test@example.com',
     ];
-    $this->drupalPostForm('signup', $edit, 'Submit');
+    $this->drupalGet('signup');
+    $this->submitForm($edit, 'Submit');
 
     $uri = 'https://us1.api.mailchimp.com/3.0/lists/57afe96172/members/55502f40dc8b7c769880b10874abc9d0';
     $expected_interests = (object) [
