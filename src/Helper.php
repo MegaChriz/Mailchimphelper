@@ -2,6 +2,7 @@
 
 namespace Drupal\mailchimphelper;
 
+use Drupal\Core\Utility\Error;
 use Drupal\mailchimphelper\Mailchimp\MailchimpList;
 use Drupal\mailchimphelper\Plugin\QueueWorker\MailchimpAddTag;
 use Mailchimp\MailchimpAPIException;
@@ -53,7 +54,7 @@ class Helper {
       if ($e->getCode() !== 404) {
         // 404 indicates the email address is not subscribed to this list
         // and can be safely ignored. Surface all other exceptions.
-        watchdog_exception('mailchimp', $e);
+        Error::logException(\Drupal::logger('mailchimp'), $e);
       }
     }
 
@@ -68,7 +69,7 @@ class Helper {
     }
     catch (MailchimpAPIException $e) {
       // Log exceptions.
-      watchdog_exception('mailchimp', $e);
+      Error::logException(\Drupal::logger('mailchimp'), $e);
     }
 
     // Adding tags failed. Queue this task instead.

@@ -13,7 +13,7 @@ abstract class MailchimpHelperKernelTestBase extends EntityKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'mailchimp',
     'mailchimp_test',
     'mailchimphelper',
@@ -23,7 +23,7 @@ abstract class MailchimpHelperKernelTestBase extends EntityKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->installConfig(['mailchimp']);

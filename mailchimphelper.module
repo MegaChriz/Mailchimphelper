@@ -4,7 +4,7 @@
  * @file
  * Hook implementations for mailchimphelper.
  */
-
+use Drupal\Core\Utility\Error;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Queue\RequeueException;
@@ -59,7 +59,7 @@ function mailchimphelper_cron() {
       // release the item and the queue.
       $queue->releaseItem($item);
 
-      watchdog_exception('cron', $e);
+      Error::logException(\Drupal::logger('cron'), $e);
 
       // Stop the loop.
       break;
@@ -67,7 +67,7 @@ function mailchimphelper_cron() {
     catch (\Exception $e) {
       // In case of any other kind of exception, log it and leave the item
       // in the queue to be processed again later.
-      watchdog_exception('cron', $e);
+      Error::logException(\Drupal::logger('cron'), $e);
     }
   }
 }

@@ -15,7 +15,7 @@ class SignupTest extends MailchimphelperBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'mailchimp',
     'mailchimp_test',
     'mailchimp_signup',
@@ -40,7 +40,7 @@ class SignupTest extends MailchimphelperBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // Create an account who may signup for newsletters.
