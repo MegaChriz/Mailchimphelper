@@ -1,0 +1,35 @@
+diff --git a/modules/mailchimp_signup/src/Form/MailchimpSignupPageForm.php b/modules/mailchimp_signup/src/Form/MailchimpSignupPageForm.php
+index 954d4ed..effa148 100644
+--- a/modules/mailchimp_signup/src/Form/MailchimpSignupPageForm.php
++++ b/modules/mailchimp_signup/src/Form/MailchimpSignupPageForm.php
+@@ -7,6 +7,7 @@ use Drupal\Core\Ajax\AjaxResponse;
+ use Drupal\Core\Ajax\ChangedCommand;
+ use Drupal\Core\Ajax\HtmlCommand;
+ use Drupal\Core\Ajax\InvokeCommand;
++use Drupal\Core\Form\BaseFormIdInterface;
+ use Drupal\Core\Form\FormBase;
+ use Drupal\Core\Form\FormStateInterface;
+ use Drupal\Core\Messenger\MessengerInterface;
+@@ -16,7 +17,7 @@ use Drupal\mailchimp_signup\Entity\MailchimpSignup;
+ /**
+  * Subscribe to a Mailchimp list/audience.
+  */
+-class MailchimpSignupPageForm extends FormBase {
++class MailchimpSignupPageForm extends FormBase implements BaseFormIdInterface {
+ 
+   /**
+    * The messenger service.
+@@ -68,6 +69,13 @@ class MailchimpSignupPageForm extends FormBase {
+     $this->formId = $formId;
+   }
+ 
++  /**
++   * {@inheritdoc}
++   */
++  public function getBaseFormId() {
++    return 'mailchimp_signup_subscribe_form';
++  }
++
+   /**
+    * Gets the signup service.
+    *

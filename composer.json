@@ -11,7 +11,7 @@
     ],
     "require": {
         "drupal/core": "^10.1 || ^11",
-        "drupal/mailchimp": "^2.0"
+        "drupal/mailchimp": "^2.2.5"
     },
     "require-dev": {
         "bex/behat-screenshot": "^1.2",
@@ -28,7 +28,7 @@
     "extra": {
         "patches": {
             "drupal/mailchimp": {
-                "Get signup object from signup form and set base form id": "patches/mailchimp-signup-form-get-signup.patch"
+                "Base Form ID for MailchimpSignupPageForm": "patches/mailchimp-signup-form-base-id.patch"
             }
         }
     }
