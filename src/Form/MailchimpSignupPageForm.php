@@ -4,8 +4,9 @@ namespace Drupal\mailchimphelper\Form;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
-use Drupal\mailchimphelper\Helper;
+use Drupal\mailchimp\ApiService;
 use Drupal\mailchimp_signup\Form\MailchimpSignupPageForm as MailchimpSignupPageFormBase;
+use Drupal\mailchimphelper\Helper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -23,13 +24,15 @@ class MailchimpSignupPageForm extends MailchimpSignupPageFormBase {
   /**
    * Constructs a new MailchimpSignupPageForm object.
    *
+   * @param \Drupal\mailchimp\ApiService $api_service
+   *   The Mailchimp API service.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger service.
    * @param \Drupal\mailchimphelper\Helper $mailchimphelper
    *   The mailchimphelper service.
    */
-  public function __construct(MessengerInterface $messenger, Helper $mailchimphelper) {
-    parent::__construct($messenger);
+  public function __construct(ApiService $api_service, MessengerInterface $messenger, Helper $mailchimphelper) {
+    parent::__construct($api_service, $messenger);
     $this->mailchimpHelper = $mailchimphelper;
   }
 
@@ -38,6 +41,7 @@ class MailchimpSignupPageForm extends MailchimpSignupPageFormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('mailchimp.api'),
       $container->get('messenger'),
       $container->get('mailchimphelper')
     );

@@ -11,7 +11,7 @@
     ],
     "require": {
         "drupal/core": "^10.1 || ^11",
-        "drupal/mailchimp": "^2.2.5"
+        "drupal/mailchimp": "^3.0"
     },
     "require-dev": {
         "bex/behat-screenshot": "^1.2",
