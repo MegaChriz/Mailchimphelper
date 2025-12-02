@@ -12,7 +12,7 @@ use Mailchimp\MailchimpLists as MailchimpListsBase;
 class MailchimpLists extends MailchimpListsBase {
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function __construct($api_key = 'apikey', $api_user = 'apikey', $http_options = []) {
     $this->client = new MailchimpTestHttpClient();
@@ -33,7 +33,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function getLists($parameters = []) {
     parent::getLists($parameters);
@@ -60,7 +60,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function getList($list_id, $parameters = []) {
     parent::getList($list_id, $parameters);
@@ -74,7 +74,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function getInterestCategories($list_id, $parameters = []) {
     parent::getInterestCategories($list_id, $parameters);
@@ -96,7 +96,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function getInterests($list_id, $interest_category_id, $parameters = []) {
     parent::getInterests($list_id, $interest_category_id, $parameters);
@@ -129,7 +129,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function getMergeFields($list_id, $parameters = []) {
     parent::getMergeFields($list_id, $parameters);
@@ -154,7 +154,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function getMemberInfo($list_id, $email, $parameters = []) {
     parent::getMemberInfo($list_id, $email, $parameters);
@@ -169,7 +169,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function addMember($list_id, $email, $parameters = [], $batch = FALSE) {
     parent::addMember($list_id, $email, $parameters, $batch);
@@ -187,14 +187,14 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function removeMember($list_id, $email) {
     parent::removeMember($list_id, $email);
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function updateMember($list_id, $email, $parameters = [], $batch = FALSE) {
     parent::updateMember($list_id, $email, $parameters, $batch);
@@ -212,7 +212,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function addOrUpdateMember($list_id, $email, $parameters = [], $batch = FALSE) {
     parent::addOrUpdateMember($list_id, $email, $parameters, $batch);
@@ -230,7 +230,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function getSegments($list_id, $parameters = []) {
     parent::getSegments($list_id, $parameters);
@@ -257,7 +257,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function getSegment($list_id, $segment_id, $parameters = []) {
     parent::getSegment($list_id, $segment_id, $parameters);
@@ -273,7 +273,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function addSegment($list_id, $name, $parameters = [], $batch = FALSE) {
     parent::addSegment($list_id, $name, $parameters, $batch);
@@ -291,7 +291,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function updateSegment($list_id, $segment_id, $name, $parameters = [], $batch = FALSE) {
     parent::updateSegment($list_id, $segment_id, $name, $parameters);
@@ -307,7 +307,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function getWebhooks($list_id, $parameters = []) {
     parent::getWebhooks($list_id, $parameters);
@@ -335,7 +335,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function addWebhook($list_id, $url, $parameters = [], $batch = FALSE) {
     parent::addWebhook($list_id, $url, $parameters, $batch);
@@ -354,7 +354,7 @@ class MailchimpLists extends MailchimpListsBase {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function deleteWebhook($list_id, $webhook_id, $parameters = []) {
     parent::deleteWebhook($list_id, $webhook_id, $parameters);

@@ -2,6 +2,9 @@
 
 namespace Drupal\mailchimphelper\Mailchimp;
 
+/**
+ *
+ */
 trait CacheTrait {
 
   /**

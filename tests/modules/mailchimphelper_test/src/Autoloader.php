@@ -2,8 +2,6 @@
 
 namespace Drupal\mailchimphelper_test;
 
-use ReflectionClass;
-
 /**
  * Autoloader for mailchimp classes.
  */
@@ -21,7 +19,7 @@ class Autoloader {
       $dirs = [__DIR__ . '/Mailchimp/'];
 
       // Then check the mailchimp library.
-      $reflector = new ReflectionClass('Mailchimp\Mailchimp');
+      $reflector = new \ReflectionClass('Mailchimp\Mailchimp');
       $dirs[] = dirname(dirname($reflector->getFileName())) . '/tests/src/';
 
       $parts = explode('\\', $fq_class, 3);

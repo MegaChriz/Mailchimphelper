@@ -371,7 +371,7 @@ class MailchimpList implements ListInterface {
         }
       }
       else {
-        $group_defaults = isset($defaults[$category_id]) ? $defaults[$category_id] : [];
+        $group_defaults = $defaults[$category_id] ?? [];
       }
 
       $return[$category_id] = $category->getFormField($group_defaults);

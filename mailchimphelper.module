@@ -4,11 +4,12 @@
  * @file
  * Hook implementations for mailchimphelper.
  */
-use Drupal\Core\Utility\Error;
+
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Queue\RequeueException;
 use Drupal\Core\Queue\SuspendQueueException;
+use Drupal\Core\Utility\Error;
 
 /**
  * Number of seconds to run tasks from the "mailchimphelper_tag_member" queue.

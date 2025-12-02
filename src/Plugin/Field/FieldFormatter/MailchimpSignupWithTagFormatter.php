@@ -9,9 +9,7 @@ use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\mailchimphelper\Form\MailchimpSignupPageForm;
-use RuntimeException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
 
 /**
  * Plugin for displaying a mailchimp signup form with tag.
@@ -149,7 +147,7 @@ class MailchimpSignupWithTagFormatter extends FormatterBase {
 
     $signup = $this->mailchimpSignupStorage->load($signup_id);
     if (!$signup) {
-      throw new RuntimeException($this->t('Signup form "@name" not found.', [
+      throw new \RuntimeException($this->t('Signup form "@name" not found.', [
         '@name' => $signup_id,
       ]));
     }

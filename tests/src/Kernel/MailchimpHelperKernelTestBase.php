@@ -2,8 +2,8 @@
 
 namespace Drupal\Tests\mailchimphelper\Kernel;
 
-use Drupal\mailchimp_test\MailchimpConfigOverrider;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
+use Drupal\mailchimp_test\MailchimpConfigOverrider;
 
 /**
  * Provides a base class for kernel tests.

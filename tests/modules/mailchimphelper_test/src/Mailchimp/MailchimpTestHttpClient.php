@@ -19,7 +19,7 @@ class MailchimpTestHttpClient implements MailchimpHttpClientInterface {
   public $options;
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function handleRequest($method, $uri = '', $options = [], $parameters = [], $returnAssoc = FALSE) {
     if (!empty($parameters)) {

@@ -7,7 +7,7 @@
 
 use Drupal\mailchimphelper_test\Autoloader;
 
-require_once('src/Autoloader.php');
+require_once 'src/Autoloader.php';
 
 // Add autoloader for finding Mailchimp test classes.
 spl_autoload_register([Autoloader::class, 'searchClass']);

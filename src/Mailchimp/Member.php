@@ -2,8 +2,6 @@
 
 namespace Drupal\mailchimphelper\Mailchimp;
 
-use stdClass;
-
 /**
  * Class for a Mailchimp member.
  */
@@ -41,7 +39,7 @@ class Member {
    */
   public function __construct(ListInterface $list, $data) {
     $this->list = $list;
-    if (is_object($data) && $data != new stdClass()) {
+    if (is_object($data) && $data != new \stdClass()) {
       $this->object = $data;
     }
   }
